@@ -1,0 +1,14 @@
+<form role="form" method="POST">
+  {% csrf_token %}
+  <div class="card-body">
+    {% for field in form %}
+    <div class="form-group">{{field.label_tag}} {{field}} {{field.errors}}</div>
+    {% endfor %}
+  </div>
+
+  <div class="card-footer">
+    <button type="submit" class="btn btn-success btn-block">
+      {% if button_text %} {{button_text}} {% else %} Submit {% endif %}
+    </button>
+  </div>
+</form>

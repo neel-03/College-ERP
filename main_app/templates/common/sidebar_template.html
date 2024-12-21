@@ -1,0 +1,293 @@
+{% load static %}
+
+<aside class="main-sidebar sidebar-dark-info elevation-4">
+  <!-- for HOD -->
+  {% if request.user.user_type == '1' %}
+
+  <!-- logo -->
+  <a href="{% url 'hod_home' %}" class="brand-link">
+    <img
+      src="{% static 'dist/img/ddu.png' %} "
+      alt="DDU logo"
+      class="brand-image"
+    />
+    <span class="brand-text font-weight-light"><b>HOD panel</b></span>
+  </a>
+
+  <!-- Sidebar -->
+  <div
+    class="sidebar"
+    style="
+      background-image: linear-gradient(to right, #c86400, #ff8600, #ffc88a);
+    "
+  >
+    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+      <div class="info d-block">
+        <b>{{user}}</b>
+      </div>
+    </div>
+  {% endif %}
+    <!-- sidebar menu -->
+    <nav class="mt-2">
+      <ul
+        class="nav nav-pills nav-sidebar flex-column"
+        data-widget="treeview"
+        role="menu"
+        data-accordion="false"
+      >
+        <li class="nav-item">
+          {% url 'hod_home' as hod_home %}
+          <a
+            href="{{hod_home}}"
+            class="nav-link"
+            {% if hod_home == request.path %}
+            style="background-color: #fff !important; color: #000"
+            {% else %}
+            style="color: #fff"
+            {% endif %}
+          >
+            <i class="nav-icon fas fa-home"></i>
+            <p>Home</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          {% url 'hod_view_profile' as hod_view_profile %}
+          <a
+            href="{{hod_view_profile}}"
+            class="nav-link"
+            {% if hod_view_profile == request.path %}
+            style="background-color: #fff !important; color: #000"
+            {% else %}
+            style="color: #fff"
+            {% endif %}
+          >
+            <i class="nav-icon fas fa-address-card"></i>
+            <p>Update Profile</p>
+          </a>
+        </li>
+
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link" style="color: #fff">
+            <i class="nav-icon fas fa-layer-group"></i>
+            <p>
+              Batch
+              <i class="fas fa-angle-left right"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              {% url 'add_batch' as add_batch %}
+              <a href="{{add_batch}}"
+              class="nav-link"
+              {% if add_batch == request.path %}
+              style="background-color: #fff !important; color: #000"
+              {% else %}
+              style="color: #fff"
+              {% endif %}
+              >
+                <i class="fas fa-caret-right nav-icon"></i>
+                <p>Add Batch</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              {% url 'manage_batch' as manage_batch %}
+              {% url 'edit_batch' batch_id as edit_batch %}
+              <a href="{{manage_batch}}"
+              class="nav-link"
+              {% if edit_batch == request.path or manage_batch == request.path %}
+              style="background-color: #fff !important; color: #000"
+              {% else %}
+              style="color: #fff"
+              {% endif %}
+              >
+                <i class="fas fa-caret-right nav-icon"></i>
+                <p>Manage Batch</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link" style="color: #fff">
+            <i class="nav-icon fas fa-bookmark"></i>
+            <p>
+              Degree / Course
+              <i class="fas fa-angle-left right"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              {% url 'add_course' as add_course %}
+              <a href="{{add_course}}"
+              class="nav-link"
+              {% if add_course == request.path %}
+              style="background-color: #fff !important; color: #000"
+              {% else %}
+              style="color: #fff"
+              {% endif %}
+              >
+                <i class="fas fa-caret-right nav-icon"></i>
+                <p>Add Course</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              {% url 'manage_course' as manage_course %}
+              {% url 'edit_course' course_id as edit_course %}
+              <a href="{{manage_course}}"
+              class="nav-link"
+              {% if edit_course == request.path or manage_course == request.path %}
+              style="background-color: #fff !important; color: #000"
+              {% else %}
+              style="color: #fff"
+              {% endif %}
+              >
+                <i class="fas fa-caret-right nav-icon"></i>
+                <p>Manage Course</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link" style="color: #fff">
+            <i class="nav-icon fas fa-book"></i>
+            <p>
+              Subject
+              <i class="fas fa-angle-left right"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              {% url 'add_subject' as add_subject %}
+              <a href="{{add_subject}}"
+              class="nav-link"
+              {% if add_subject == request.path %}
+              style="background-color: #fff !important; color: #000"
+              {% else %}
+              style="color: #fff"
+              {% endif %}
+              >
+                <i class="fas fa-caret-right nav-icon"></i>
+                <p>Add Subject</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              {% url 'manage_subject' as manage_subject %}
+              {% url 'edit_subject' subject_id as edit_subject %}
+              <a href="{{manage_subject}}"
+              class="nav-link"
+              {% if edit_subject == request.path or manage_subject == request.path %}
+              style="background-color: #fff !important; color: #000"
+              {% else %}
+              style="color: #fff"
+              {% endif %}
+              >
+                <i class="fas fa-caret-right nav-icon"></i>
+                <p>Manage Subject</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link" style="color: #fff">
+            <i class="nav-icon fas fa-user-plus"></i>
+            <p>
+              Add Users
+              <i class="fas fa-angle-left right"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              {% url 'add_faculty' as add_faculty %}
+              <a href="{{add_faculty}}" 
+              class="nav-link"
+              {% if add_faculty == request.path %}
+              style="background-color: #fff !important; color: #000"
+              {% else %}
+              style="color: #fff"
+              {% endif %}
+              >
+                <i class="fas fa-caret-right nav-icon"></i>
+                <p>Add Faculty</p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              {% url 'add_student' as add_student %}
+              <a href="{{add_student}}" 
+              class="nav-link"
+              {% if add_student == request.path %}
+              style="background-color: #fff !important; color: #000"
+              {% else %}
+              style="color: #fff"
+              {% endif %}
+              >
+                <i class="fas fa-caret-right nav-icon"></i>
+                <p>Add Student</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link" style="color: #fff">
+            <i class="fas fa-users nav-icon"></i>
+            <p>
+              Manage Users
+              <i class="fas fa-angle-left right"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              {% url 'manage_faculty' as manage_faculty %}
+              {% url 'edit_faculty' staff_id as edit_faculty %}
+              <a href="{{manage_faculty}}" 
+              class="nav-link"
+              {% if edit_faculty == request.path or manage_faculty == request.path %}
+              style="background-color: #fff !important; color: #000"
+              {% else %}
+              style="color: #fff"
+              {% endif %}
+              >
+                <i class="fas fa-caret-right nav-icon"></i>
+                <p>Manage Faculty</p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              {% url 'manage_student' as manage_student %}
+              {% url 'edit_student' student_id as edit_student %}
+              <a href="{{manage_student}}" 
+              class="nav-link"
+              {% if edit_student == request.path or manage_student == request.path %}
+              style="background-color: #fff !important; color: #000"
+              {% else %}
+              style="color: #fff"
+              {% endif %}
+              >
+                <i class="fas fa-caret-right nav-icon"></i>
+                <p>Manage Student</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <hr />
+        <li class="nav-item">
+            <a href="{% url 'logout_user' %}" 
+            onclick="return confirm('Your session would be terminated.\n\nProceed?')" 
+            class="nav-link"
+            style="background-color: #f00 !important; color: #fff ">
+            <i class="nav-icon fas fa-power-off"></i>
+            <p>
+              Logout
+            </p>
+          </a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</aside>

@@ -1,0 +1,86 @@
+{% extends 'common/base.html' %} {% load static %} {% block page_title %}
+{{page_title}} {% endblock page_title %} {% block custom_css %}
+<style>
+  .invalid {
+    font-size: 15px;
+    color: red;
+  }
+  .valid {
+    font-size: 15px;
+    color: green;
+  }
+</style>
+{% endblock custom_css %} {% block content %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card card-dark">
+          <div class="card-header">
+            <h3 class="card-title">{{page_title}}</h3>
+          </div>
+
+          {% include "common/form_template.html" with messages=messages form=form button_text="Add Faculty" %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %} {% block custom_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const emailInput = document.getElementById("id_email");
+    const submitButton = document.querySelector('button[type="submit"]');
+    const token = document.querySelector(
+      'input[name="csrfmiddlewaretoken"]'
+    ).value;
+
+    const messageSpan = document.createElement("span");
+    emailInput.insertAdjacentElement("afterend", messageSpan);
+
+    submitButton.disabled = true;
+
+    emailInput.addEventListener("keyup", () => {
+      const email = emailInput.value;
+
+      if (isValidEmail(email)) {
+        fetch("{% url 'check_email_availability' %}", {
+          method: "POST",
+          body: JSON.stringify({ email: email }),
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": token,
+          },
+        })
+          .then((res) => res.text())
+          .then((res) => {
+            const isAvailable = res === "False";
+            submitButton.disabled = !isAvailable;
+
+            messageSpan.className = `${
+              isAvailable ? "valid" : "invalid"
+            } email_error`;
+            messageSpan.textContent = isAvailable
+              ? "Email address is available"
+              : "Email already exists";
+          })
+          .catch(() => {
+            messageSpan.className = "alert alert-warning email_error";
+            messageSpan.textContent = "Internal server error";
+            submitButton.disabled = true;
+          });
+      } else {
+        submitButton.disabled = true;
+        messageSpan.className = "invalid email_error";
+        messageSpan.textContent =
+          "Please enter a valid faculty email (e.g., name.branch@ddu.ac.in)";
+      }
+    });
+
+    function isValidEmail(email) {
+      const regex = /^[^\s@]+@ddu\.ac\.in$/;
+      return regex.test(email);
+    }
+  });
+</script>
+{% endblock custom_js %}

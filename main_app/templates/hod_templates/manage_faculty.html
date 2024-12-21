@@ -1,0 +1,53 @@
+{% extends 'common/base.html' %}
+{% load static %}
+{% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-body">
+            <table id="example2" class="table table-bordered table-hover">
+              <thead class="thead-dark">
+                <tr>
+                  <th>#</th>
+                  <th>Full Name</th>
+                  <th>Email</th>
+                  <th>Gender</th>
+                  <th>Course</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for faculty in all_faculties %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ faculty.first_name }} {{ faculty.last_name }}</td>
+                  <td>{{ faculty.email }}</td>
+                  <td>{{ faculty.gender }}</td>
+                  <td>{{ faculty.faculty.course.name }}</td>
+                  <td>
+                    <a
+                      href="{% url 'edit_faculty' faculty.faculty.id %}"
+                      class="btn btn-info"
+                      >Edit</a>
+                    &#8195;
+                    <a
+                      href="{% url 'delete_faculty' faculty.faculty.id %}"
+                      class="btn btn-danger"
+                      onclick="return confirm('Are you sure about this?')"
+                      >Delete</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}

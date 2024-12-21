@@ -1,0 +1,114 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DDU ERP System</title>
+    <link rel="shortcut icon" href="{%  static '/image/favicon.ico' %}" />
+    <link
+      rel="stylesheet"
+      href="{% static 'plugins/fontawesome-free/css/all.min.css' %}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}"
+    />
+    <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}" />
+    <style>
+      * {
+        font-family: "Poppins";
+      }
+    </style>
+  </head>
+  <body
+    class="hold-transition login-page"
+    style="
+      background-image: linear-gradient(
+        to right top,
+        #8a4200,
+        #c86400,
+        #ff8600,
+        #ffc88a,
+        #ffd6b0
+      );
+    "
+  >
+    <div class="login-box">
+      <div class="login-logo">
+        <a href="/" class="d-inline-block">
+          <img
+            src="{% static 'dist/img/ddu.png' %}"
+            alt="DDU Logo"
+            class="img-fluid mx-auto d-block"
+            style="max-width: 150px"
+          />
+        </a>
+      </div>
+      <div class="card shadow">
+        <div class="card-body login-card-body rounded">
+          {% if messages %}
+          <div class="col-12 rounded">
+            {% for message in messages %} {% if message.tags == 'error' %}
+            <div class="alert alert-danger text-center">{{message }}</div>
+            {% endif %} {% endfor %}
+          </div>
+          {% endif %}
+          <form action="login_user/" method="post">
+            {% csrf_token %}
+            <div class="input-group mb-3 shadow rounded">
+              <input
+                required
+                type="email"
+                name="email"
+                class="form-control"
+                placeholder="Email"
+                autocomplete="off"
+              />
+              <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-envelope"></span>
+                </div>
+              </div>
+            </div>
+            <div class="input-group mb-3 shadow rounded">
+              <input
+                required
+                type="password"
+                name="password"
+                class="form-control"
+                placeholder="Password"
+              />
+              <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-lock"></span>
+                </div>
+              </div>
+            </div>
+            <div class="row mx-1 shadow rounded mb-3">
+              <button type="submit" class="btn btn-success btn-block w-full">
+                Log In
+              </button>
+            </div>
+          </form>
+
+          <a href="{% url 'password_reset' %}" class="my-2 mx-1">
+            <u>Forgot Password?</u>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+    <!-- Bootstrap 4 -->
+    <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <!-- AdminLTE App -->
+    <script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+  </body>
+</html>
