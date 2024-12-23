@@ -497,3 +497,29 @@ def view_faculty_leave(request):
     
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
+@csrf_exempt
+def view_student_leave(request):
+    if request.method != 'POST':
+        allLeave = LeaveReportStudent.objects.all()
+        context = {
+            'allLeave': allLeave,
+            'page_title': 'Leave Applications From Student'
+        }
+        return render(request, "hod_templates/student_leave_view.html", context)
+
+    try:
+        data = json.loads(request.body)
+        leave_id = data.get('id')
+        status = data.get('status')
+        status = 1 if status == '1' else -1
+
+        leave = get_object_or_404(LeaveReportStudent, id=leave_id)
+        leave.status = status
+        leave.save()
+
+        return HttpResponse("True")
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

@@ -164,6 +164,7 @@ class FacultyEditForm(FormSettings):
             self.fields['first_name'].initial = self.instance.admin.first_name
             self.fields['last_name'].initial = self.instance.admin.last_name
             self.fields['email'].initial = self.instance.admin.email
+            self.fields['email'].widget.attrs['readonly'] = True
             self.fields['password'].widget.attrs['placeholder'] = "Fill this if and only if you want to update password"
 
     class Meta:
@@ -183,6 +184,17 @@ class FacultyEditForm(FormSettings):
                 faculty.admin.save()
                 faculty.save()
         return faculty
+    
+
+class StudentEditForm(CustomUserForm):
+    def __init__(self, *args, **kwargs):
+        super(StudentEditForm, self).__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs['readonly'] = True
+        
+
+    class Meta(CustomUserForm.Meta):
+        model = Student
+        fields = CustomUserForm.Meta.fields
 
 class LeaveReportFacultyForm(FormSettings):
     def __init__(self, *args, **kwargs):
@@ -190,6 +202,18 @@ class LeaveReportFacultyForm(FormSettings):
 
     class Meta:
         model = LeaveReportFaculty
+        fields = ['date', 'message']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+
+class LeaveReportStudentForm(FormSettings):
+    def __init__(self, *args, **kwargs):
+        super(LeaveReportStudentForm, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = LeaveReportStudent
         fields = ['date', 'message']
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),

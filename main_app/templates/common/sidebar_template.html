@@ -302,6 +302,22 @@
                 <p>Faculty Leave</p>
               </a>
             </li>
+
+            <li class="nav-item">
+              {% url 'view_student_leave' as view_student_leave %}
+              <a
+                href="{{view_student_leave}}"
+                class="nav-link"
+                {% if view_student_leave == request.path %}
+                style="background-color: #fff !important; color: #000"
+                {% else %}
+                style="color: #fff"
+                {% endif %}
+              >
+                <i class="fas fa-caret-right nav-icon"></i>
+                <p>Student Leave</p>
+              </a>
+            </li>
           </ul>
         </li>
 
@@ -355,7 +371,53 @@
         </li>
 
       {% else %}
+        <li class="nav-item">
+          {% url 'student_home' as student_home %}
+          <a
+            href="{{student_home}}"
+            class="nav-link"
+            {% if student_home == request.path %}
+            style="background-color: #fff !important; color: #000"
+            {% else %}
+            style="color: #fff"
+            {% endif %}
+          >
+            <i class="nav-icon fas fa-home"></i>
+            <p>Home</p>
+          </a>
+        </li>
 
+        <li class="nav-item">
+          {% url 'student_view_profile' as student_view_profile %}
+          <a
+            href="{{student_view_profile}}"
+            class="nav-link"
+            {% if student_view_profile == request.path %}
+            style="background-color: #fff !important; color: #000"
+            {% else %}
+            style="color: #fff"
+            {% endif %}
+          >
+            <i class="nav-icon fas fa-address-card"></i>
+            <p>Update Profile</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          {% url 'student_apply_leave' as student_apply_leave %}
+          <a
+            href="{{student_apply_leave}}"
+            class="nav-link"
+            {% if student_apply_leave == request.path %}
+            style="background-color: #fff !important; color: #000"
+            {% else %}
+            style="color: #fff"
+            {% endif %}
+          >
+            <i class="nav-icon fas fa-file-signature"></i>
+            <p>Apply for Leave</p>
+          </a>
+        </li>
       {% endif %}
       <hr />
         <li class="nav-item">
