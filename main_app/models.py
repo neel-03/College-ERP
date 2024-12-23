@@ -93,3 +93,21 @@ class Student(models.Model):
 
     def __str__(self):
         return self.admin.first_name + " " + self.admin.last_name
+    
+
+class LeaveReportStudent(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    date = models.CharField(max_length=20)
+    message = models.TextField()
+    status = models.SmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class LeaveReportFaculty(models.Model):
+    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
+    date = models.CharField(max_length=20)
+    message = models.TextField()
+    status = models.SmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

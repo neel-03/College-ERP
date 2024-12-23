@@ -150,3 +150,47 @@ class BatchForm(FormSettings):
                 "Both start year and end year must be selected.")
 
         return cleaned_data
+    
+
+class FacultyEditForm(FormSettings):
+    first_name = forms.CharField(max_length=120)
+    last_name = forms.CharField(max_length=120)
+    email = forms.EmailField()
+    password = forms.CharField(widget=forms.PasswordInput, required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(FacultyEditForm, self).__init__(*args, **kwargs)
+        if self.instance.pk:
+            self.fields['first_name'].initial = self.instance.admin.first_name
+            self.fields['last_name'].initial = self.instance.admin.last_name
+            self.fields['email'].initial = self.instance.admin.email
+            self.fields['password'].widget.attrs['placeholder'] = "Fill this if and only if you want to update password"
+
+    class Meta:
+        model = Faculty
+        fields = []
+
+    def save(self, commit=True):
+        faculty = super().save(commit=False)
+        if faculty.admin:
+            faculty.admin.first_name = self.cleaned_data['first_name']
+            faculty.admin.last_name = self.cleaned_data['last_name']
+            faculty.admin.email = self.cleaned_data['email']
+            faculty.admin.gender = self.cleaned_data['gender']
+            if self.cleaned_data['password']:
+                faculty.admin.set_password(self.cleaned_data['password'])
+            if commit:
+                faculty.admin.save()
+                faculty.save()
+        return faculty
+
+class LeaveReportFacultyForm(FormSettings):
+    def __init__(self, *args, **kwargs):
+        super(LeaveReportFacultyForm, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = LeaveReportFaculty
+        fields = ['date', 'message']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+        }

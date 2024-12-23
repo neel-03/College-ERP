@@ -2,31 +2,34 @@
 
 <aside class="main-sidebar sidebar-dark-info elevation-4">
   <!-- for HOD -->
-  {% if request.user.user_type == '1' %}
 
   <!-- logo -->
-  <a href="{% url 'hod_home' %}" class="brand-link">
+  <a href="/" class="brand-link">
     <img
       src="{% static 'dist/img/ddu.png' %} "
       alt="DDU logo"
       class="brand-image"
     />
-    <span class="brand-text font-weight-light"><b>HOD panel</b></span>
+    <span class="brand-text font-weight-light">
+      <b> 
+        {% if request.user.user_type == '1' %}
+        HOD
+        {% elif request.user.user_type == '2'%}
+        Faculty
+        {% else %}
+        Student
+        {% endif %}
+        panel
+      </b></span>
   </a>
 
   <!-- Sidebar -->
-  <div
-    class="sidebar"
-    style="
-      background-image: linear-gradient(to right, #c86400, #ff8600, #ffc88a);
-    "
-  >
+  <div class="sidebar" style="background-image: linear-gradient(to right, #c86400, #ff8600, #ffc88a);">
     <div class="user-panel mt-3 pb-3 mb-3 d-flex">
       <div class="info d-block">
-        <b>{{user}}</b>
+        <b>{{ user }}</b>
       </div>
     </div>
-  {% endif %}
     <!-- sidebar menu -->
     <nav class="mt-2">
       <ul
@@ -35,6 +38,7 @@
         role="menu"
         data-accordion="false"
       >
+      {% if request.user.user_type == '1' %}
         <li class="nav-item">
           {% url 'hod_home' as hod_home %}
           <a
@@ -274,7 +278,86 @@
           </ul>
         </li>
 
-        <hr />
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link" style="color: #fff">
+            <i class="fas fa-calendar-minus nav-icon"></i>
+            <p>
+              Leave Applications
+              <i class="fas fa-angle-left right"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              {% url 'view_faculty_leave' as view_faculty_leave %}
+              <a
+                href="{{view_faculty_leave}}"
+                class="nav-link"
+                {% if view_faculty_leave == request.path %}
+                style="background-color: #fff !important; color: #000"
+                {% else %}
+                style="color: #fff"
+                {% endif %}
+              >
+                <i class="fas fa-caret-right nav-icon"></i>
+                <p>Faculty Leave</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+      {% elif request.user.user_type == '2' %}
+        <li class="nav-item">
+          {% url 'faculty_home' as faculty_home %}
+          <a
+            href="{{faculty_home}}"
+            class="nav-link"
+            {% if faculty_home == request.path %}
+            style="background-color: #fff !important; color: #000"
+            {% else %}
+            style="color: #fff"
+            {% endif %}
+          >
+            <i class="nav-icon fas fa-home"></i>
+            <p>Home</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          {% url 'faculty_view_profile' as faculty_view_profile %}
+          <a
+            href="{{faculty_view_profile}}"
+            class="nav-link"
+            {% if faculty_view_profile == request.path %}
+            style="background-color: #fff !important; color: #000"
+            {% else %}
+            style="color: #fff"
+            {% endif %}
+          >
+            <i class="nav-icon fas fa-address-card"></i>
+            <p>Update Profile</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          {% url 'faculty_apply_leave' as faculty_apply_leave %}
+          <a
+            href="{{faculty_apply_leave}}"
+            class="nav-link"
+            {% if faculty_apply_leave == request.path %}
+            style="background-color: #fff !important; color: #000"
+            {% else %}
+            style="color: #fff"
+            {% endif %}
+          >
+            <i class="nav-icon fas fa-file-signature"></i>
+            <p>Apply for Leave</p>
+          </a>
+        </li>
+
+      {% else %}
+
+      {% endif %}
+      <hr />
         <li class="nav-item">
             <a href="{% url 'logout_user' %}" 
             onclick="return confirm('Your session would be terminated.\n\nProceed?')" 

@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.urls import reverse
@@ -14,7 +15,7 @@ def hod_home(request):
 
 def hod_view_profile(request):
     admin = get_object_or_404(Admin, admin=request.user)
-    form = AdminForm(request.POST or None, request.FILES or None, instance=admin)
+    form = AdminForm(request.POST or None, instance=admin)
 
     context = {
         'form': form,
@@ -470,3 +471,29 @@ def delete_student(request, student_id):
     student.delete()
     messages.success(request, "Student deleted successfully!")
     return redirect(reverse('manage_student'))
+
+
+@csrf_exempt
+def view_faculty_leave(request):
+    if request.method != 'POST':
+        allLeave = LeaveReportFaculty.objects.all()
+        context = {
+            'allLeave': allLeave,
+            'page_title': 'Leave Applications From Faculty'
+        }
+        return render(request, "hod_templates/faculty_leave_view.html", context)
+
+    try:
+        data = json.loads(request.body)
+        leave_id = data.get('id')
+        status = data.get('status')
+        status = 1 if status == '1' else -1
+
+        leave = get_object_or_404(LeaveReportFaculty, id=leave_id)
+        leave.status = status
+        leave.save()
+
+        return HttpResponse("True")
+    
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

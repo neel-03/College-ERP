@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views, hod_views
+from . import views, hod_views, faculty_views
 
 
 urlpatterns = [
@@ -43,4 +43,13 @@ urlpatterns = [
     path('manage_student/', view=hod_views.manage_student, name='manage_student'),
     path('student/edit/<int:student_id>/', view=hod_views.edit_student, name='edit_student'),
     path('student/delete/<int:student_id>/', view=hod_views.delete_student, name='delete_student'),
+
+    path("faculty/view/leave/", hod_views.view_faculty_leave, name="view_faculty_leave"),
+
+
+    # Faculty routes
+    path('faculty/home/', view=faculty_views.faculty_home, name='faculty_home'),
+    path('faculty_view_profile/', view=faculty_views.faculty_view_profile, name='faculty_view_profile'),
+
+    path("faculty_apply_leave/", faculty_views.faculty_apply_leave, name='faculty_apply_leave'),
 ]
