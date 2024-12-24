@@ -12,3 +12,8 @@ GENDER = [
 ]
 
 YEAR_CHOICES = [(None, "Select Year")] + [(year, str(year)) for year in range(datetime.now().year - 10, datetime.now().year + 6)]
+
+STATUS_CHOICES = [
+    ('active', 'Active'),
+    ('closed', 'Closed'),
+]

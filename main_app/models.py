@@ -111,3 +111,50 @@ class LeaveReportFaculty(models.Model):
     status = models.SmallIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+class Quiz(models.Model):
+    name = models.CharField(max_length=50)
+    created_by = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name="quizzes")
+    total_marks = models.PositiveIntegerField(default=0)
+    status = models.CharField(
+        max_length=10, choices=choices.STATUS_CHOICES, default='active'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+class Question(models.Model):
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="questions")
+    text = models.TextField()
+    option_1 = models.CharField(max_length=255)
+    option_2 = models.CharField(max_length=255)
+    option_3 = models.CharField(max_length=255)
+    correct_answer = models.CharField(max_length=255)
+    marks = models.PositiveIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Question {self.id} for Quiz: {self.quiz.name}"
+
+class Response(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='responses')
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='responses')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='responses')
+    selected_answer = models.CharField(max_length=255)
+    is_correct = models.BooleanField(default=False)
+    responded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Response by {self.student} for Question {self.question.id}"
+
+class QuizResult(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='quiz_results')
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='quiz_results')
+    total_marks = models.PositiveIntegerField(default=0)
+    obtained_marks = models.PositiveIntegerField(default=0)
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Result for {self.student} in Quiz: {self.quiz.name}"
