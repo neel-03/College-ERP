@@ -54,6 +54,9 @@ urlpatterns = [
 
     path("faculty_apply_leave/", faculty_views.faculty_apply_leave, name='faculty_apply_leave'),
 
+    path('faculty_create_quiz/', view=faculty_views.faculty_create_quiz, name='faculty_create_quiz'),
+    path('faculty_add_questions/<int:quiz_id>/', view=faculty_views.faculty_add_questions, name='faculty_add_questions'),
+
 
     # Student routes
     path('student/home/', view=student_views.student_home, name='student_home'),

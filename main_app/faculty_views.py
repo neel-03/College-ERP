@@ -1,3 +1,5 @@
+import json
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
@@ -66,3 +68,54 @@ def faculty_apply_leave(request):
         else:
             messages.error(request, "Please fill valid details")
     return render(request, "faculty_templates/faculty_apply_leave.html", context)
+
+
+def faculty_create_quiz(request):
+    form = QuizForm(request.POST or None, logged_in_user=request.user.faculty)
+
+    context = {
+        'form': form,
+        'page_title': 'Create Quiz'
+    }
+
+    if request.method == 'POST':
+        if form.is_valid():
+            try:
+                quiz = form.save(commit=False)
+                quiz.created_by = request.user.faculty
+                quiz.save()
+                return redirect(reverse('faculty_add_questions', args=[quiz.id]))
+            except Exception as e:
+                messages.error(request, f"Could not create quiz: {str(e)}")
+        else:
+            messages.error(request, "Please fill valid details")
+    else:
+        form = QuizForm(logged_in_user=request.user.faculty)
+    return render(request, "faculty_templates/faculty_create_quiz.html", context)
+
+def faculty_add_questions(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            questions = data.get('questions', [])
+
+            for question in questions:
+                Question.objects.create(
+                    quiz=quiz,
+                    text=question['text'],
+                    correct_answer=question['correct_answer'],
+                    option_1=question['option_1'],
+                    option_2=question['option_2'],
+                    option_3=question['option_3'],
+                    marks=question['marks'],
+                )
+            quiz.status = 'active'
+            quiz.save()
+            return HttpResponse('True')
+        except Exception:
+            return HttpResponse('False')
+
+    return render(request, 'faculty_templates/faculty_add_questions.html', {'quiz': quiz, 'page_title': 'Add Questions'})
+

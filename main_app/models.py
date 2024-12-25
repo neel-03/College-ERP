@@ -115,6 +115,7 @@ class LeaveReportFaculty(models.Model):
 class Quiz(models.Model):
     name = models.CharField(max_length=50)
     created_by = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name="quizzes")
+    subject = models.ForeignKey('Subject', on_delete=models.CASCADE, related_name='quizzes')
     total_marks = models.PositiveIntegerField(default=0)
     status = models.CharField(
         max_length=10, choices=choices.STATUS_CHOICES, default='active'

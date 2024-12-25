@@ -1,0 +1,178 @@
+{% extends 'common/base.html' %} {% load static %} {% block page_title %}
+{{page_title}} {% endblock page_title %} {% block content %}
+
+{% csrf_token %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <!-- form elements -->
+        <div class="card card-dark">
+          <div class="card-header">
+            <h3 class="card-title">{{page_title}}</h3>
+          </div>
+          
+          <div class="card-body">
+            <div>
+                <h3>Quiz: {{ quiz.name }}</h3>
+                <p>Created by: {{ quiz.created_by }}</p>
+                <p>Subject: {{ quiz.subject.name }}</p>
+                <p>Total Marks: {{ quiz.total_marks }}</p>
+                <p>Current Marks: <span id="current-marks">0</span></p>
+            </div>
+
+            <div id="question-container">
+                <!-- questions will be appended here -->
+            </div>
+
+            
+            <div class="card-footer">
+                <button id="add-question-btn" class="btn btn-primary mb-3 btn-block" onclick='addQuestion()'>Add Question</button>
+                <button id="save-quiz-btn" class="btn btn-success btn-block" onclick='saveQuiz()' disabled>Save Quiz</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %} 
+
+{% block custom_js %}
+<script>
+    const token = document.querySelector('input[name="csrfmiddlewaretoken"]').value
+
+    const questionContainer = document.getElementById('question-container')
+
+    const addBtn = document.getElementById('add-question-btn')
+    const saveBtn = document.getElementById('save-quiz-btn')
+
+    const totalMarks = {{quiz.total_marks}}
+    const currentMarks = document.getElementById('current-marks')
+
+    let allocatedMarks = 0
+    let questions = []
+
+    const updateMarks = (input, index) => {
+        const marks = parseInt(input.value || 0, 10)
+        const oldMarks = questions[index]?.marks || 0
+
+        if (allocatedMarks - oldMarks + marks > totalMarks) {
+            alert(`Total marks exceeded!\n\nExceeded ${allocatedMarks - oldMarks + marks - totalMarks} marks.`)
+            input.value = ''
+            return
+        }
+
+        allocatedMarks = allocatedMarks - oldMarks + marks
+        currentMarks.textContent = allocatedMarks
+
+        questions[index].marks = marks
+        saveBtn.disabled = allocatedMarks < totalMarks
+    }
+
+    const addQuestion = () => {
+        if (allocatedMarks >= totalMarks) {
+            alert('You have already allocated all marks.')
+            return
+        }
+
+        const index = questions.length
+
+        const questionInputContainer = document.createElement('div')
+        questionInputContainer.innerHTML = `
+            <div class="form-group border p-3 shadow-sm mb-3 rounded">
+                <div class="form-row align-items-center mb-3">
+                    <div class="col-auto">
+                        <label class="font-weight-bold">${index + 1}. </label>
+                    </div>
+                    <div class="col">
+                        <textarea name="text" placeholder="Enter question text" class="form-control shadow" required></textarea>
+                    </div>
+                    <div class="col-auto">
+                        <input type="number" name="marks" placeholder="Marks" class="form-control shadow text-center" required 
+                            style="width: 80px;" oninput="updateMarks(this, ${index})">
+                    </div>
+                </div>
+
+                <div class="form-row align-items-center mb-2">
+                    <div class="col-auto">
+                        <label class="font-weight-bold">Answer: </label>
+                    </div>
+                    <div class="col">
+                        <input type="text" name="correct_answer" placeholder="Enter the correct answer" class="form-control shadow" required>
+                    </div>
+                </div>
+
+                <div class="form-row align-items-center mb-2">
+                    <div class="col-auto">
+                        <label class="font-weight-bold">Option 1:</label>
+                    </div>
+                    <div class="col">
+                        <input type="text" name="option_1" placeholder="Enter option 1" class="form-control shadow" required>
+                    </div>
+                </div>
+                <div class="form-row align-items-center mb-2">
+                    <div class="col-auto">
+                        <label class="font-weight-bold">Option 2:</label>
+                    </div>
+                    <div class="col">
+                        <input type="text" name="option_2" placeholder="Enter option 2" class="form-control shadow" required>
+                    </div>
+                </div>
+                <div class="form-row align-items-center mb-2">
+                    <div class="col-auto">
+                        <label class="font-weight-bold">Option 3:</label>
+                    </div>
+                    <div class="col">
+                        <input type="text" name="option_3" placeholder="Enter option 3" class="form-control shadow" required>
+                    </div>
+                </div>
+            </div>
+        `
+
+        questionContainer.appendChild(questionInputContainer)
+        questions.push({})
+    }
+
+    const saveQuiz = () => {
+        const questionElements = questionContainer.children
+
+        questions = Array.from(questionElements).map((ele) => ({
+            text: ele.querySelector('textarea[name="text"]').value,
+            correct_answer: ele.querySelector('input[name="correct_answer"]').value,
+            option_1: ele.querySelector('input[name="option_1"]').value,
+            option_2: ele.querySelector('input[name="option_2"]').value,
+            option_3: ele.querySelector('input[name="option_3"]').value,
+            marks: parseInt(ele.querySelector('input[name="marks"]').value || 0, 10),
+        }))
+
+        fetch("{% url 'faculty_add_questions' quiz.id %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": token,
+            },
+            body: JSON.stringify({ questions }),
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`)
+                }
+                return response.text()
+            })
+            .then((result) => {
+                if (result === "True") {
+                    alert("Quiz created successfully")
+                } else {
+                    alert("Failed to create quiz")
+                }
+            })
+            .catch((error) => {
+                alert("An error occurred while processing your request.")
+            })
+            .finally(() => {
+                window.location.href = '/'
+            })
+    }
+</script>
+{% endblock custom_js %}
