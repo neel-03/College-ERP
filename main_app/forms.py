@@ -223,9 +223,11 @@ class QuizForm(FormSettings):
     def __init__(self, *args, **kwargs):
         self.logged_in_user = kwargs.pop('logged_in_user', None)
         super(QuizForm, self).__init__(*args, **kwargs)
+        self.fields['batch'].queryset = Batch.objects.all()
+        self.fields['batch'].empty_label = "Select Batch"
         if self.logged_in_user:
             self.fields['subject'].queryset = Subject.objects.filter(faculty=self.logged_in_user)
 
     class Meta:
         model = Quiz
-        fields = ['name', 'subject', 'total_marks']
+        fields = ['name', 'subject', 'batch', 'total_marks']
