@@ -432,6 +432,21 @@
             <p>Apply for Leave</p>
           </a>
         </li>
+        
+        <li class="nav-item">
+          {% url 'student_view_quiz' as student_view_quiz %}
+          <a
+            href="{{ student_view_quiz }}"
+            class="nav-link"
+            style="{% if request.path == student_view_quiz %}
+            background-color: #fff !important; 
+            color: #000
+            {% else %}color: #fff{% endif %}"
+          >
+            <i class="nav-icon far fa-edit"></i>
+            <p>Quizzes</p>
+          </a>
+        </li>
       {% endif %}
       <hr />
         <li class="nav-item">

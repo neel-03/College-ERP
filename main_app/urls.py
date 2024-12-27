@@ -62,4 +62,10 @@ urlpatterns = [
     path('student/home/', view=student_views.student_home, name='student_home'),
     path('student_view_profile/', view=student_views.student_view_profile, name='student_view_profile'),
     path("student_apply_leave/", student_views.student_apply_leave, name='student_apply_leave'),
+
+    path('student_view_quiz/', view=student_views.student_view_quiz, name='student_view_quiz'),
+
+    path('attempt_quiz/<int:quiz_id>/', view=student_views.attempt_quiz, name='attempt_quiz'),
+    path('view_result/<int:quiz_id>/', view=student_views.view_result, name='view_result'),
+    path('submit_quiz/<int:quiz_id>/', view=student_views.submit_quiz, name='submit_quiz'),
 ]
