@@ -3,39 +3,38 @@
 
 {% csrf_token %}
 <section class="content">
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-md-12">
-        <!-- form elements -->
-        <div class="card card-dark">
-          <div class="card-header">
-            <h3 class="card-title">{{page_title}}</h3>
-          </div>
-          
-          <div class="card-body">
-            <div>
-                <h3>Quiz: {{ quiz.name }}</h3>
-                <p>Created by: {{ quiz.created_by }}</p>
-                <p>Subject: {{ quiz.subject.name }}</p>
-                <p>Created for batch: {{ quiz.batch }}</p>
-                <p>Total Marks: {{ quiz.total_marks }}</p>
-                <p>Current Marks: <span id="current-marks">0</span></p>
-            </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <!-- form elements -->
+                <div class="card card-dark">
+                    <div class="card-header">
+                        <h3 class="card-title">{{page_title}}</h3>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div>
+                            <h3>Quiz: {{ quiz.name }}</h3>
+                            <p>Created by: {{ quiz.created_by }}</p>
+                            <p>Subject: {{ quiz.subject.name }}</p>
+                            <p>Created for batch: {{ quiz.batch }}</p>
+                            <p>Total Marks: {{ quiz.total_marks }}</p>
+                            <p>Current Marks: <span id="current-marks">0</span></p>
+                        </div>
 
-            <div id="question-container">
-                <!-- questions will be appended here -->
-            </div>
+                        <div id="question-container">
+                            <!-- questions will be appended here -->
+                        </div>
 
-            
-            <div class="card-footer">
-                <button id="add-question-btn" class="btn btn-primary mb-3 btn-block" onclick='addQuestion()'>Add Question</button>
-                <button id="save-quiz-btn" class="btn btn-success btn-block" onclick='saveQuiz()' disabled>Save Quiz</button>
+                        <div class="card-footer">
+                            <button id="add-question-btn" class="btn btn-primary mb-3 btn-block" onclick='addQuestion()'>Add Question</button>
+                            <button id="save-quiz-btn" class="btn btn-success btn-block" onclick='saveQuiz()' disabled>Save Quiz</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
 </section>
 {% endblock content %} 
 
@@ -68,7 +67,28 @@
         currentMarks.textContent = allocatedMarks
 
         questions[index].marks = marks
-        saveBtn.disabled = allocatedMarks < totalMarks
+        checkFormValidity()
+    }
+
+    const checkFormValidity = () => {
+        const questionElements = questionContainer.children
+        let allFieldsFilled = true
+
+        Array.from(questionElements).forEach((ele) => {
+            const text = ele.querySelector('textarea[name="text"]').value
+            const correct_answer = ele.querySelector('input[name="correct_answer"]').value
+            const option_1 = ele.querySelector('input[name="option_1"]').value
+            const option_2 = ele.querySelector('input[name="option_2"]').value
+            const option_3 = ele.querySelector('input[name="option_3"]').value
+            const marks = ele.querySelector('input[name="marks"]').value
+
+            if (!text || !correct_answer || !option_1 || !option_2 || !option_3 || !marks) {
+                allFieldsFilled = false
+            }
+        })
+
+        saveBtn.disabled = !allFieldsFilled || allocatedMarks < totalMarks
+        addBtn.disabled = allocatedMarks >= totalMarks
     }
 
     const addQuestion = () => {
@@ -87,11 +107,16 @@
                         <label class="font-weight-bold">${index + 1}. </label>
                     </div>
                     <div class="col">
-                        <textarea name="text" placeholder="Enter question text" class="form-control shadow" required></textarea>
+                        <textarea name="text" placeholder="Enter question text" class="form-control shadow" required oninput="checkFormValidity()"></textarea>
                     </div>
                     <div class="col-auto">
                         <input type="number" name="marks" placeholder="Marks" class="form-control shadow text-center" required 
                             style="width: 80px;" oninput="updateMarks(this, ${index})">
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-danger" onclick="deleteQuestion(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -100,7 +125,7 @@
                         <label class="font-weight-bold">Answer: </label>
                     </div>
                     <div class="col">
-                        <input type="text" name="correct_answer" placeholder="Enter the correct answer" class="form-control shadow" required>
+                        <input type="text" name="correct_answer" placeholder="Enter the correct answer" class="form-control shadow" required oninput="checkFormValidity()">
                     </div>
                 </div>
 
@@ -109,7 +134,7 @@
                         <label class="font-weight-bold">Option 1:</label>
                     </div>
                     <div class="col">
-                        <input type="text" name="option_1" placeholder="Enter option 1" class="form-control shadow" required>
+                        <input type="text" name="option_1" placeholder="Enter option 1" class="form-control shadow" required oninput="checkFormValidity()">
                     </div>
                 </div>
                 <div class="form-row align-items-center mb-2">
@@ -117,7 +142,7 @@
                         <label class="font-weight-bold">Option 2:</label>
                     </div>
                     <div class="col">
-                        <input type="text" name="option_2" placeholder="Enter option 2" class="form-control shadow" required>
+                        <input type="text" name="option_2" placeholder="Enter option 2" class="form-control shadow" required oninput="checkFormValidity()">
                     </div>
                 </div>
                 <div class="form-row align-items-center mb-2">
@@ -125,7 +150,7 @@
                         <label class="font-weight-bold">Option 3:</label>
                     </div>
                     <div class="col">
-                        <input type="text" name="option_3" placeholder="Enter option 3" class="form-control shadow" required>
+                        <input type="text" name="option_3" placeholder="Enter option 3" class="form-control shadow" required oninput="checkFormValidity()">
                     </div>
                 </div>
             </div>
@@ -133,6 +158,27 @@
 
         questionContainer.appendChild(questionInputContainer)
         questions.push({})
+        checkFormValidity()
+    }
+
+    const deleteQuestion = (index) => {
+        const questionElement = questionContainer.children[index]
+        const marks = questions[index]?.marks || 0
+
+        allocatedMarks -= marks
+        currentMarks.textContent = allocatedMarks
+
+        questionContainer.removeChild(questionElement)
+        questions.splice(index, 1)
+
+        // Re-index the remaining questions
+        Array.from(questionContainer.children).forEach((ele, idx) => {
+            ele.querySelector('.font-weight-bold').textContent = `${idx + 1}.`
+            ele.querySelector('button').setAttribute('onclick', `deleteQuestion(${idx})`)
+            ele.querySelector('input[name="marks"]').setAttribute('oninput', `updateMarks(this, ${idx})`)
+        })
+
+        checkFormValidity()
     }
 
     const saveQuiz = () => {

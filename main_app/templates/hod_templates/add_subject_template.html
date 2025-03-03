@@ -13,8 +13,21 @@
           <div class="card-header">
             <h3 class="card-title">{{page_title}}</h3>
           </div>
-
-          {% include "common/form_template.html" with messages=messages form=form button_text="Add Subject"%}
+          <form method="post" action="{% url 'add_subject' %}">
+            {% csrf_token %}
+            <div class="card-body">
+              {% for field in form %}
+              <div class="form-group">{{field.label_tag}} {{field}} {{field.errors}}</div>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="course_id" id="course_id_input" value="{{ course_id }}">
+            <div class="card-footer">
+              <button type="submit" class="btn btn-success btn-block">
+                Add Subject
+              </button>
+            </div>
+          </form>
+          {% comment %} {% include "common/form_template.html" with messages=messages form=form button_text="Add Subject"%} {% endcomment %}
         </div>
       </div>
     </div>
@@ -26,6 +39,7 @@
 <script>
   document.getElementById('id_course').addEventListener('change', function () {
     const courseId = this.value;
+    document.getElementById('course_id_input').value = courseId;
     const facultyField = document.getElementById('id_faculty');
 
     facultyField.innerHTML = '';

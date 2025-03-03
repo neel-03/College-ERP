@@ -26,7 +26,10 @@
                   <td>{{ forloop.counter }}</td>
                   <td>{{ faculty.first_name }} {{ faculty.last_name }}</td>
                   <td>{{ faculty.email }}</td>
-                  <td>{{ faculty.gender }}</td>
+                  <td>
+                    {% if faculty.gender == 'M' %}Male
+                    {% else %}Female{% endif %}
+                  </td>
                   <td>{{ faculty.faculty.course.name }}</td>
                   <td>
                     <a

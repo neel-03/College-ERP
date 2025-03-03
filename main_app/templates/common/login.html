@@ -20,10 +20,14 @@
       href="{% static 'plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}"
     />
     <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
     <style>
       * {
         font-family: "Poppins";
       }
+      {% block custom_css %} {% endblock custom_css %}
     </style>
   </head>
   <body
@@ -51,7 +55,7 @@
         </a>
       </div>
       <div class="card shadow">
-        <div class="card-body login-card-body rounded">
+        <div class="card-body login-card-body rounded" style="border-radius: 50px">
           {% if messages %}
           <div class="col-12 rounded">
             {% for message in messages %} {% if message.tags == 'error' %}
@@ -90,16 +94,12 @@
                 </div>
               </div>
             </div>
-            <div class="row mx-1 shadow rounded mb-3">
+            <div class="row mx-1 shadow rounded">
               <button type="submit" class="btn btn-success btn-block w-full">
                 Log In
               </button>
             </div>
           </form>
-
-          <a href="{% url 'password_reset' %}" class="my-2 mx-1">
-            <u>Forgot Password?</u>
-          </a>
         </div>
       </div>
     </div>

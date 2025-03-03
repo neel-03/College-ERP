@@ -50,7 +50,7 @@ def filter_faculties_by_course(request):
     return JsonResponse(list(faculties), safe=False)
 
 def add_subject(request):
-    course_id = request.GET.get('course_id')
+    course_id = request.POST.get('course_id') or request.GET.get('course_id')
     form = SubjectForm(request.POST or None, course_id=course_id)
 
     context = {
@@ -64,7 +64,8 @@ def add_subject(request):
             faculty = form.cleaned_data.get('faculty')  # queryset
             try:
                 subject = Subject.objects.create(name=name, course=course)
-                subject.faculty.set(faculty)
+                if faculty:
+                    subject.faculty.set(faculty)
                 subject.save()
                 messages.success(request, 'Subject added successfully')
                 return redirect(reverse('add_subject'))
@@ -87,7 +88,7 @@ def manage_subject(request):
 
 def edit_subject(request, subject_id):
     instance = get_object_or_404(Subject, id=subject_id)
-    form = SubjectForm(request.POST or None, instance=instance)
+    form = SubjectForm(request.POST or None, instance=instance, course_id=instance.course.id)
 
     context = {
         'form': form,
@@ -185,7 +186,7 @@ def delete_course(request, course_id):
         course.delete()
         messages.success(request, 'Course deleted successfully')
     except Exception:
-        messages.error(request, 'Some students are assigned to this course already.')
+        messages.error(request, 'Some students, Faculty, or Subject are assigned to this course already.')
     return redirect(reverse('manage_course'))
 
 
