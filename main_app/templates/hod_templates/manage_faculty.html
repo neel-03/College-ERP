@@ -8,8 +8,8 @@
     <div class="row">
       <div class="col-md-12">
         <div class="card">
-          <div class="card-body">
-            <table id="example2" class="table table-bordered table-hover">
+          <div class="card-body" style="overflow-x: auto;">
+            <table class="table table-bordered table-hover">
               <thead class="thead-dark">
                 <tr>
                   <th>#</th>
@@ -21,30 +21,34 @@
                 </tr>
               </thead>
               <tbody>
-                {% for faculty in all_faculties %}
-                <tr>
-                  <td>{{ forloop.counter }}</td>
-                  <td>{{ faculty.first_name }} {{ faculty.last_name }}</td>
-                  <td>{{ faculty.email }}</td>
-                  <td>
-                    {% if faculty.gender == 'M' %}Male
-                    {% else %}Female{% endif %}
-                  </td>
-                  <td>{{ faculty.faculty.course.name }}</td>
-                  <td>
-                    <a
-                      href="{% url 'edit_faculty' faculty.faculty.id %}"
-                      class="btn btn-info"
-                      >Edit</a>
-                    &#8195;
-                    <a
-                      href="{% url 'delete_faculty' faculty.faculty.id %}"
-                      class="btn btn-danger"
-                      onclick="return confirm('Are you sure about this?')"
-                      >Delete</a>
-                  </td>
-                </tr>
-                {% endfor %}
+                {% if not all_faculties %}
+                  {% include 'common/no_content.html' with content='faculties' %}
+                {% else %}
+                  {% for faculty in all_faculties %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ faculty.first_name }} {{ faculty.last_name }}</td>
+                    <td>{{ faculty.email }}</td>
+                    <td>
+                      {% if faculty.gender == 'M' %}Male
+                      {% else %}Female{% endif %}
+                    </td>
+                    <td>{{ faculty.faculty.course.name }}</td>
+                    <td>
+                      <a
+                        href="{% url 'edit_faculty' faculty.faculty.id %}"
+                        class="btn btn-info btn-sm"
+                        >Edit</a>
+                      &#8195;
+                      <a
+                        href="{% url 'delete_faculty' faculty.faculty.id %}"
+                        class="btn btn-danger btn-sm"
+                        onclick="return confirm('Are you sure about this?')"
+                        >Delete</a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                {% endif %}
               </tbody>
             </table>
           </div>

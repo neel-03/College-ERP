@@ -46,6 +46,7 @@ def faculty_view_profile(request):
 
 
 def faculty_apply_leave(request):
+    faculty_course_admin = get_object_or_404(Course, id=request.user.faculty.course.id).admin
     form = LeaveReportFacultyForm(request.POST or None)
     faculty = get_object_or_404(Faculty, admin=request.user.id)
 
@@ -60,6 +61,7 @@ def faculty_apply_leave(request):
             try:
                 obj = form.save(commit=False)
                 obj.faculty = faculty
+                obj.requested_to = faculty_course_admin
                 obj.save()
                 messages.success(request, "Application for leave has been submitted.")
                 return redirect(reverse('faculty_apply_leave'))
@@ -119,3 +121,79 @@ def faculty_add_questions(request, quiz_id):
 
     return render(request, 'faculty_templates/faculty_add_questions.html', {'quiz': quiz, 'page_title': 'Add Questions'})
 
+
+def faculty_manage_quiz(request):
+    quizzes = Quiz.objects.filter(created_by=request.user.faculty)
+
+    context = {
+        'quizzes': quizzes,
+        'page_title': 'Manage your Quizzes'
+    }
+
+    return render(request, 'faculty_templates/faculty_manage_quiz.html', context)
+
+
+def faculty_edit_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id, created_by=request.user.faculty)
+    form = QuizForm(request.POST or None, instance=quiz, logged_in_user=request.user.faculty)
+
+    context = {
+        'form': form,
+        'page_title': 'Edit Quiz'
+    }
+
+    if request.method == 'POST':
+        if form.is_valid():
+            try:
+                form.save()
+                messages.success(request, "Quiz updated successfully.")
+                return redirect(reverse('faculty_manage_quiz'))
+            except Exception as e:
+                messages.error(request, f"Could not update quiz: {str(e)}")
+        else:
+            messages.error(request, "Please fill valid details")
+    return render(request, "faculty_templates/faculty_edit_quiz.html", context)
+
+
+def faculty_delete_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id, created_by=request.user.faculty)
+    try:
+        quiz.delete()
+        messages.success(request, "Quiz deleted successfully.")
+    except Exception as e:
+        messages.error(request, f"Could not delete quiz: {str(e)}")
+    return redirect(reverse('faculty_manage_quiz'))
+
+
+def faculty_toggle_quiz(request, quiz_id, field):
+    quiz = get_object_or_404(Quiz, id=quiz_id, created_by=request.user.faculty)
+    try:
+        match field:
+            case 'status':
+                quiz.status = 'closed' if quiz.status == 'active' else 'active'
+                quiz.save()
+                messages.success(request, f"Quiz status changed to {quiz.status}.")
+            case 'result':
+                quiz.is_result_declared = not quiz.is_result_declared
+                quiz.save()
+                messages.success(request, f"Quiz result declaration for {quiz.name}: {'ON' if quiz.is_result_declared else 'OFF'}.")
+            case _:
+                raise ValueError(f"Invalid toggling for {field}.")
+    except ValueError as ve:
+        messages.error(request, f"Error: {str(ve)}")
+    except Exception as e:
+        messages.error(request, f"An unexpected error occurred: {str(e)}")
+    return redirect(reverse('faculty_manage_quiz'))
+
+
+def faculty_view_responses(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id, created_by=request.user.faculty)
+    responses = Response.objects.filter(quiz=quiz)
+
+    context = {
+        'quiz': quiz,
+        'responses': responses,
+        'page_title': 'View Responses'
+    }
+
+    return render(request, 'faculty_templates/faculty_view_responses.html', context)

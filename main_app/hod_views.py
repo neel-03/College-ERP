@@ -50,17 +50,17 @@ def filter_faculties_by_course(request):
     return JsonResponse(list(faculties), safe=False)
 
 def add_subject(request):
-    course_id = request.POST.get('course_id') or request.GET.get('course_id')
-    form = SubjectForm(request.POST or None, course_id=course_id)
+    course = get_object_or_404(Course, admin=request.user.admin)
+    form = SubjectForm(request.POST or None, course_id=course.id)
 
     context = {
         'form': form,
         'page_title': 'Add Subject'
     }
+
     if request.method == 'POST':
         if form.is_valid():
             name = form.cleaned_data.get('name')
-            course = form.cleaned_data.get('course')
             faculty = form.cleaned_data.get('faculty')  # queryset
             try:
                 subject = Subject.objects.create(name=name, course=course)
@@ -78,7 +78,7 @@ def add_subject(request):
 
 
 def manage_subject(request):
-    subjects = Subject.objects.all()
+    subjects = Subject.objects.filter(course=request.user.admin.course.first())
     context = {
         'subjects': subjects,
         'page_title': 'Manage Subjects'
@@ -97,14 +97,18 @@ def edit_subject(request, subject_id):
     }
 
     if request.method == 'POST':
+        admin_course = request.user.admin.course.first()
+        if not admin_course:
+            messages.error(request, 'You do not have permission to edit subject')
+            return redirect(reverse('edit_subject'))
+
         if form.is_valid():
             name = form.cleaned_data.get('name')
-            course = form.cleaned_data.get('course')
             faculties = form.cleaned_data.get('faculty')
             try:
                 subject = Subject.objects.get(id=subject_id)
                 subject.name = name
-                subject.course = course
+                subject.course = admin_course
                 subject.faculty.set(faculties)
                 subject.save()
 
@@ -134,30 +138,34 @@ def add_course(request):
     if request.method == 'POST':
         if form.is_valid():
             name = form.cleaned_data.get('name')
+            admin = form.cleaned_data.get('admin')
             try:
-                course = Course()
-                course.name = name
-                course.save()
-                messages.success(request, 'Course added successfully')
-                return redirect(reverse('add_course'))
-            except:
-                messages.error(request, 'Could tot add course')
+                if Course.objects.filter(admin=admin).exists():
+                    messages.error(request, f'This admin is already assigned to other course')
+                else:
+                    Course.objects.create(name=name, admin=admin)
+                    messages.success(request, 'Course added successfully')
+                    return redirect(reverse('add_course'))
+            except Exception as e:
+                messages.error(request, f'Could not add course: {str(e)}')
         else:
-            messages.error(request, 'Could tot add course')
+            messages.error(request, 'Could not add course')
     return render(request, 'hod_templates/add_course_template.html', context)
 
 
 def manage_course(request):
-    courses = Course.objects.all()
+    admin_course = Course.objects.filter(admin=request.user.admin).first()
+    other_courses = Course.objects.exclude(admin=request.user.admin)
     context = {
-        'courses': courses,
+        'admin_course': admin_course,
+        'other_courses': other_courses,
         'page_title': 'Manage Courses'
     }
     return render(request, 'hod_templates/manage_course.html', context)
 
 
 def edit_course(request, course_id):
-    instance = get_object_or_404(Course, id=course_id)
+    instance = get_object_or_404(Course, id=course_id, admin = request.user.admin)    
     form = CourseForm(request.POST or None, instance=instance)
     context = {
         'form': form,
@@ -167,21 +175,26 @@ def edit_course(request, course_id):
     if request.method == 'POST':
         if form.is_valid():
             name = form.cleaned_data.get('name')
+            admin = form.cleaned_data.get('admin')
             try:
                 course = Course.objects.get(id=course_id)
-                course.name = name
-                course.save()
-                messages.success(request, 'Course updated successfully')
-            except:
-                messages.error(request, 'Could not update course')
+                if course.admin != admin and Course.objects.filter(admin=admin).exists():
+                    messages.error(request, f'This admin is already assigned to other course')
+                else:
+                    course.name = name
+                    course.admin = admin
+                    course.save()
+                    messages.success(request, 'Course updated successfully')
+            except Exception as e:
+                messages.error(request, f'Could not update course: {str(e)}')
         else:
-            messages.error(request, 'Could Not Update course')
+            messages.error(request, 'Could not update course')
 
     return render(request, 'hod_templates/edit_course_template.html', context)
 
 
 def delete_course(request, course_id):
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_or_404(Course, id=course_id, admin = request.user.admin)
     try:
         course.delete()
         messages.success(request, 'Course deleted successfully')
@@ -196,12 +209,17 @@ def add_batch(request):
 
     if request.method == 'POST':
         if form.is_valid():
-            try:
-                form.save()
-                messages.success(request, "Batch created Successfully")
-                return redirect(reverse('add_batch'))
-            except Exception as e:
-                messages.error(request, f"Could not create batch: {str(e)}")
+            start_year = form.cleaned_data.get('start_year')
+            end_year = form.cleaned_data.get('end_year')
+            if Batch.objects.filter(start_year=start_year, end_year=end_year).exists():
+                messages.error(request, "Batch with this start year and end year already exists.")
+            else:
+                try:
+                    form.save()
+                    messages.success(request, "Batch created Successfully")
+                    return redirect(reverse('add_batch'))
+                except Exception as e:
+                    messages.error(request, f"Could not create batch: {str(e)}")
         else:
             messages.error(request, "Please fill the form correctly.")
 
@@ -230,9 +248,14 @@ def edit_batch(request, batch_id):
     if request.method == 'POST':
         if form.is_valid():
             try:
-                form.save()
-                messages.success(request, "Batch Updated")
-                return redirect(reverse('edit_batch', args=[batch_id]))
+                start_year = form.cleaned_data.get('start_year')
+                end_year = form.cleaned_data.get('end_year')
+                if Batch.objects.filter(start_year=start_year, end_year=end_year).exclude(id=batch_id).exists():
+                    messages.error(request, "Batch with this start year and end year already exists.")
+                else:
+                    form.save()
+                    messages.success(request, "Batch Updated")
+                    return redirect(reverse('edit_batch', args=[batch_id]))
             except Exception as e:
                 messages.error(
                     request, "Batch could not be updated " + str(e))
@@ -240,9 +263,7 @@ def edit_batch(request, batch_id):
         else:
             messages.error(request, "Invalid Form Submitted ")
             return render(request, "hod_templates/edit_batch_template.html", context)
-
-    else:
-        return render(request, "hod_templates/edit_batch_template.html", context)
+    return render(request, "hod_templates/edit_batch_template.html", context)
     
 
 def delete_batch(request, batch_id):
@@ -257,12 +278,12 @@ def delete_batch(request, batch_id):
 
 @csrf_exempt
 def check_email_availability(request):
-    email = request.POST.get("email")
     try:
-        user = CustomUser.objects.filter(email=email).exists()
-        if user:
-            return HttpResponse(True)
-        return HttpResponse(False)
+        data = json.loads(request.body)
+        email = data.get("email")
+        print(email)
+        user_exists = CustomUser.objects.filter(email=email).exists()
+        return HttpResponse(not user_exists)
     except Exception as e:
         return HttpResponse(False)
 
@@ -275,13 +296,16 @@ def add_faculty(request):
     }
 
     if request.method == 'POST':
+        admin_course = request.user.admin.course.first()
+        if not admin_course:
+            messages.error(request, 'You do not have permission to add new faculty')
+            return redirect(reverse('add_faculty'))
         if form.is_valid():
             first_name = form.cleaned_data.get('first_name')
             last_name = form.cleaned_data.get('last_name')
             email = form.cleaned_data.get('email')
             gender = form.cleaned_data.get('gender')
             password = form.cleaned_data.get('password')
-            course = form.cleaned_data.get('course')
 
             try:
                 user = CustomUser.objects.create_user(
@@ -295,7 +319,7 @@ def add_faculty(request):
 
                 Faculty.objects.create(
                     admin=user,
-                    course=course
+                    course=admin_course
                 )
 
                 messages.success(request, "Faculty added successfully")
@@ -309,12 +333,13 @@ def add_faculty(request):
 
 
 def manage_faculty(request):
-    all_faculties = CustomUser.objects.filter(user_type='2')
+    admin_course = request.user.admin.course.first()
+    all_faculties = CustomUser.objects.filter(user_type='2', faculty__course=admin_course)
     context = {
         'all_faculties': all_faculties,
-        'page_title' : 'Manage Faculties'
+        'page_title': 'Manage Faculties'
     }
-    return render(request, 'hod_templates/manage_faculty.html', context) 
+    return render(request, 'hod_templates/manage_faculty.html', context)
 
 
 def edit_faculty(request, faculty_id):
@@ -327,6 +352,10 @@ def edit_faculty(request, faculty_id):
     }
 
     if request.method == 'POST':
+        admin_course = request.user.admin.course.first()
+        if not admin_course:
+            messages.error(request, 'You do not have permission to edit faculty')
+            return redirect(reverse('edit_faculty'))
         if form.is_valid():
             first_name = form.cleaned_data.get('first_name')
             last_name = form.cleaned_data.get('last_name')
@@ -334,7 +363,6 @@ def edit_faculty(request, faculty_id):
             email = form.cleaned_data.get('email')
             gender = form.cleaned_data.get('gender')
             password = form.cleaned_data.get('password') or None
-            course = form.cleaned_data.get('course')
 
             try:
                 user = CustomUser.objects.get(id=faculty.admin.id)
@@ -348,7 +376,7 @@ def edit_faculty(request, faculty_id):
                 user.gender = gender
                 user.save() 
                 
-                faculty.course = course
+                faculty.course = admin_course
                 faculty.save()
 
                 messages.success(request, "Faculty updated successfully")
@@ -377,13 +405,17 @@ def add_student(request):
     }
 
     if request.method == 'POST':
+        admin_course = request.user.admin.course.first()
+        if not admin_course:
+            messages.error(request, 'You do not have permission to add new student')
+            return redirect(reverse('add_student'))
+
         if form.is_valid():
             first_name = form.cleaned_data.get('first_name')
             last_name = form.cleaned_data.get('last_name')
             email = form.cleaned_data.get('email')
             gender = form.cleaned_data.get('gender')
             password = form.cleaned_data.get('password')
-            course = form.cleaned_data.get('course')
             batch = form.cleaned_data.get('batch')
 
             try:
@@ -398,7 +430,7 @@ def add_student(request):
 
                 Student.objects.create(
                     admin=user,
-                    course=course,
+                    course=admin_course,
                     batch=batch
                 )
 
@@ -417,11 +449,15 @@ def edit_student(request, student_id):
     form = StudentForm(request.POST or None, instance=student)
     context = {
         'form': form,
-        'faculty_id': student_id,
+        'student_id': student_id,
         'page_title': 'Edit Student'
     }
 
     if request.method == 'POST':
+        admin_course = request.user.admin.course.first()
+        if not admin_course:
+            messages.error(request, 'You do not have permission to edit student')
+            return redirect(reverse('edit_student'))
         if form.is_valid():
             first_name = form.cleaned_data.get('first_name')
             last_name = form.cleaned_data.get('last_name')
@@ -429,7 +465,6 @@ def edit_student(request, student_id):
             email = form.cleaned_data.get('email')
             gender = form.cleaned_data.get('gender')
             password = form.cleaned_data.get('password') or None
-            course = form.cleaned_data.get('course')
             batch = form.cleaned_data.get('batch')
 
             try:
@@ -444,7 +479,7 @@ def edit_student(request, student_id):
                 user.gender = gender
                 user.save()
 
-                student.course = course
+                student.course = admin_course
                 student.batch = batch
                 student.save()
 
@@ -460,7 +495,10 @@ def edit_student(request, student_id):
 
 
 def manage_student(request):
-    all_students = CustomUser.objects.filter(user_type='3')
+    admin_course = request.user.admin.course.first()
+    all_students = CustomUser.objects.filter(
+        user_type='3', 
+        student__course=admin_course).order_by('student__batch__start_year')
     context = {
         'all_students': all_students,
         'page_title': 'Manage Student'
@@ -476,10 +514,17 @@ def delete_student(request, student_id):
 
 @csrf_exempt
 def view_faculty_leave(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Cannot access student leaves"}, status=403)
     if request.method != 'POST':
-        allLeave = LeaveReportFaculty.objects.all()
+        all_leaves = LeaveReportFaculty.objects.filter(requested_to_id=request.user.admin.id)
+
+        pending_leaves = all_leaves.filter(status=0)
+        past_leaves = all_leaves.exclude(status=0)
+
         context = {
-            'allLeave': allLeave,
+            'pending_leaves': pending_leaves,
+            'past_leaves': past_leaves,
             'page_title': 'Leave Applications From Faculty'
         }
         return render(request, "hod_templates/faculty_leave_view.html", context)
@@ -502,10 +547,17 @@ def view_faculty_leave(request):
 
 @csrf_exempt
 def view_student_leave(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Cannot access student leaves"}, status=403)
     if request.method != 'POST':
-        allLeave = LeaveReportStudent.objects.all()
+        all_leaves = LeaveReportStudent.objects.filter(requested_to_id=request.user.admin.id)
+        
+        pending_leaves = all_leaves.filter(status=0)
+        past_leaves = all_leaves.exclude(status=0)
+
         context = {
-            'allLeave': allLeave,
+            'pending_leaves': pending_leaves,
+            'past_leaves': past_leaves,
             'page_title': 'Leave Applications From Student'
         }
         return render(request, "hod_templates/student_leave_view.html", context)

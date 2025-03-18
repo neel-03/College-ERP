@@ -48,6 +48,7 @@ def student_view_profile(request):
 
 
 def student_apply_leave(request):
+    student_course_admin = get_object_or_404(Course, id=request.user.student.course.id).admin
     form = LeaveReportStudentForm(request.POST or None)
     student = get_object_or_404(Student, admin=request.user.id)
 
@@ -62,6 +63,7 @@ def student_apply_leave(request):
             try:
                 obj = form.save(commit=False)
                 obj.student = student
+                obj.requested_to = student_course_admin
                 obj.save()
                 messages.success(request, "Application for leave has been submitted.")
                 return redirect(reverse('student_apply_leave'))
@@ -75,7 +77,8 @@ def student_apply_leave(request):
 def student_view_quiz(request):
     student = get_object_or_404(Student, admin=request.user)
     quizzes = Quiz.objects.filter(
-        batch=student.batch
+        batch=student.batch,
+        
     ).annotate(
         attempted = models.Exists(
             Response.objects.filter(student=student, quiz=models.OuterRef('id'))
@@ -161,4 +164,4 @@ def submit_quiz(request, quiz_id):
 
 
 def view_result(request, quiz_id):
-    return None
+    pass

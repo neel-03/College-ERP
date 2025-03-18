@@ -27,8 +27,8 @@
                         </div>
 
                         <div class="card-footer">
-                            <button id="add-question-btn" class="btn btn-primary mb-3 btn-block" onclick='addQuestion()'>Add Question</button>
-                            <button id="save-quiz-btn" class="btn btn-success btn-block" onclick='saveQuiz()' disabled>Save Quiz</button>
+                            <button id="add-question-btn" class="btn btn-primary mb-3 btn-block btn-sm" onclick='addQuestion()'>Add Question</button>
+                            <button id="save-quiz-btn" class="btn btn-success btn-block btn-sm" onclick='saveQuiz()' disabled>Save Quiz</button>
                         </div>
                     </div>
                 </div>
@@ -114,7 +114,7 @@
                             style="width: 80px;" oninput="updateMarks(this, ${index})">
                     </div>
                     <div class="col-auto">
-                        <button class="btn btn-danger" onclick="deleteQuestion(${index})">
+                        <button class="btn btn-danger btn-sm" onclick="deleteQuestion(${index})">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>

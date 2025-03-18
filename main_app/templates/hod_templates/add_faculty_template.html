@@ -1,16 +1,7 @@
 {% extends 'common/base.html' %} {% load static %} {% block page_title %}
-{{page_title}} {% endblock page_title %} {% block custom_css %}
-<style>
-  .invalid {
-    font-size: 15px;
-    color: red;
-  }
-  .valid {
-    font-size: 15px;
-    color: green;
-  }
-</style>
-{% endblock custom_css %} {% block content %}
+{{page_title}} {% endblock page_title %}
+
+{% block content %}
 <section class="content">
   <div class="container-fluid">
     <div class="row">
@@ -54,12 +45,12 @@
         })
           .then((res) => res.text())
           .then((res) => {
-            const isAvailable = res === "False";
+            const isAvailable = res === "True";
             submitButton.disabled = !isAvailable;
 
             messageSpan.className = `${
-              isAvailable ? "valid" : "invalid"
-            } email_error`;
+              isAvailable ? "text-success " : "text-danger "
+            }text-xs`;
             messageSpan.textContent = isAvailable
               ? "Email address is available"
               : "Email already exists";
@@ -71,7 +62,7 @@
           });
       } else {
         submitButton.disabled = true;
-        messageSpan.className = "invalid email_error";
+        messageSpan.className = "text-danger text-xs";
         messageSpan.textContent =
           "Please enter a valid faculty email (e.g., name.branch@ddu.ac.in)";
       }

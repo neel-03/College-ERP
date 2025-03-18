@@ -72,16 +72,18 @@ class FacultyForm(CustomUserForm):
 
     class Meta(CustomUserForm.Meta):
         model = Faculty
-        fields = CustomUserForm.Meta.fields + ['course']
+        fields = CustomUserForm.Meta.fields
 
 
 class CourseForm(FormSettings):
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
+        self.fields['admin'].queryset = Admin.objects.filter(admin__user_type=1)
+        self.fields['admin'].empty_label = "Select HoD"
 
     class Meta:
         model = Course
-        fields = ['name']
+        fields = ['name', 'admin']
 
 
 class SubjectForm(FormSettings):
@@ -96,13 +98,18 @@ class SubjectForm(FormSettings):
         super(SubjectForm, self).__init__(*args, **kwargs)
 
         if course_id:
-            self.fields['faculty'].queryset = Faculty.objects.filter(course_id=course_id)
+            faculty_queryset = Faculty.objects.filter(course_id=course_id)
+            if faculty_queryset.exists():
+                self.fields['faculty'].queryset = faculty_queryset
+            else:
+                self.fields['faculty'].queryset = Faculty.objects.none()
+                self.fields['faculty'].empty_label = "No faculty available in course"
         else:
             self.fields['faculty'].queryset = Faculty.objects.none()
 
     class Meta:
         model = Subject
-        fields = ['name', 'course', 'faculty']
+        fields = ['name', 'faculty']
 
 
 class StudentForm(CustomUserForm):
@@ -113,7 +120,7 @@ class StudentForm(CustomUserForm):
 
     class Meta(CustomUserForm.Meta):
         model = Student
-        fields = CustomUserForm.Meta.fields + ['course', 'batch']
+        fields = CustomUserForm.Meta.fields + ['batch']
 
 
 class BatchForm(FormSettings):

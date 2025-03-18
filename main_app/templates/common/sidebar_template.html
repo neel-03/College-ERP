@@ -384,6 +384,21 @@
             <p>Create Quiz</p>
           </a>
         </li>
+
+        <li class="nav-item">
+          {% url 'faculty_manage_quiz' as faculty_manage_quiz %}
+          <a
+            href="{{ faculty_manage_quiz }}"
+            class="nav-link"
+            style="{% if request.path == faculty_manage_quiz %}
+            background-color: #fff !important; 
+            color: #000
+            {% else %}color: #fff{% endif %}"
+          >
+            <i class="nav-icon fas fa-tasks"></i>
+            <p>Manage Quiz</p>
+          </a>
+        </li>
       {% else %}
         <li class="nav-item">
           {% url 'student_home' as student_home %}

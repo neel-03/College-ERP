@@ -15,57 +15,62 @@ urlpatterns = [
 
     # HOD routes
     path('hod/home/', view=hod_views.hod_home, name='hod_home'),
-    path('hod_view_profile/', view=hod_views.hod_view_profile, name='hod_view_profile'),
+    path('hod/profile/', view=hod_views.hod_view_profile, name='hod_view_profile'),
 
-    path('add_course/', view=hod_views.add_course, name='add_course'),
-    path('manage_course/', view=hod_views.manage_course, name='manage_course'),
-    path('course/edit/<int:course_id>/', view=hod_views.edit_course, name='edit_course'),
-    path('course/delete/<int:course_id>/', view=hod_views.delete_course, name='delete_course'),
+    path('hod/course/add/', view=hod_views.add_course, name='add_course'),
+    path('hod/course/manage/', view=hod_views.manage_course, name='manage_course'),
+    path('hod/course/<int:course_id>/edit/', view=hod_views.edit_course, name='edit_course'),
+    path('hod/course/<int:course_id>/delete/', view=hod_views.delete_course, name='delete_course'),
 
-    path('add_batch/', view=hod_views.add_batch, name='add_batch'),
-    path('manage_batch/', view=hod_views.manage_batch, name='manage_batch'),
-    path('batch/edit/<int:batch_id>/', view=hod_views.edit_batch, name='edit_batch'),
-    path('batch/delete/<int:batch_id>/', view=hod_views.delete_batch, name='delete_batch'),
+    path('hod/batch/add/', view=hod_views.add_batch, name='add_batch'),
+    path('hos/batch/manage/', view=hod_views.manage_batch, name='manage_batch'),
+    path('hod/batch/<int:batch_id>/edit/', view=hod_views.edit_batch, name='edit_batch'),
+    path('hod/batch/<int:batch_id>/delete/', view=hod_views.delete_batch, name='delete_batch'),
 
     path('filter-faculties-by-course/', view=hod_views.filter_faculties_by_course, name='filter_faculties_by_course'),
 
-    path('add_subject/', view=hod_views.add_subject, name='add_subject'),
-    path('manage_subject/', view=hod_views.manage_subject, name='manage_subject'),
-    path('subject/edit/<int:subject_id>/', view=hod_views.edit_subject, name='edit_subject'),
-    path('subject/delete/<int:subject_id>/', view=hod_views.delete_subject, name='delete_subject'),
+    path('hod/subject/add/', view=hod_views.add_subject, name='add_subject'),
+    path('hod/subject/manage/', view=hod_views.manage_subject, name='manage_subject'),
+    path('hod/subject/<int:subject_id>/edit/', view=hod_views.edit_subject, name='edit_subject'),
+    path('hod/subject/<int:subject_id>/delete/', view=hod_views.delete_subject, name='delete_subject'),
 
-    path('add_faculty/', hod_views.add_faculty, name='add_faculty'),
-    path('manage_faculty/', view=hod_views.manage_faculty, name='manage_faculty'),
-    path('faculty/edit/<int:faculty_id>/', view=hod_views.edit_faculty, name='edit_faculty'),
-    path('faculty/delete/<int:faculty_id>/', view=hod_views.delete_faculty, name='delete_faculty'),
+    path('hod/faculty/add/', hod_views.add_faculty, name='add_faculty'),
+    path('hod/faculty/manage/', view=hod_views.manage_faculty, name='manage_faculty'),
+    path('hod/faculty/<int:faculty_id>/edit/', view=hod_views.edit_faculty, name='edit_faculty'),
+    path('hod/faculty/<int:faculty_id>/delete/', view=hod_views.delete_faculty, name='delete_faculty'),
 
-    path('add_student/', hod_views.add_student, name='add_student'),
-    path('manage_student/', view=hod_views.manage_student, name='manage_student'),
-    path('student/edit/<int:student_id>/', view=hod_views.edit_student, name='edit_student'),
-    path('student/delete/<int:student_id>/', view=hod_views.delete_student, name='delete_student'),
+    path('hod/student/add/', hod_views.add_student, name='add_student'),
+    path('hod/student/manage/', view=hod_views.manage_student, name='manage_student'),
+    path('hod/student/<int:student_id>/edit/', view=hod_views.edit_student, name='edit_student'),
+    path('hod/student/<int:student_id>/delete/', view=hod_views.delete_student, name='delete_student'),
 
-    path("faculty/view/leave/", hod_views.view_faculty_leave, name="view_faculty_leave"),
-    path("student/view/leave/", hod_views.view_student_leave, name="view_student_leave"),
+    path('faculty/view/leave/', hod_views.view_faculty_leave, name='view_faculty_leave'),
+    path('student/view/leave/', hod_views.view_student_leave, name='view_student_leave'),
 
 
     # Faculty routes
     path('faculty/home/', view=faculty_views.faculty_home, name='faculty_home'),
-    path('faculty_view_profile/', view=faculty_views.faculty_view_profile, name='faculty_view_profile'),
+    path('faculty/profile/', view=faculty_views.faculty_view_profile, name='faculty_view_profile'),
 
-    path("faculty_apply_leave/", faculty_views.faculty_apply_leave, name='faculty_apply_leave'),
+    path('faculty/leave/', faculty_views.faculty_apply_leave, name='faculty_apply_leave'),
 
-    path('faculty_create_quiz/', view=faculty_views.faculty_create_quiz, name='faculty_create_quiz'),
-    path('faculty_add_questions/<int:quiz_id>/', view=faculty_views.faculty_add_questions, name='faculty_add_questions'),
+    path('faculty/quiz/create/', view=faculty_views.faculty_create_quiz, name='faculty_create_quiz'),
+    path('faculty/quiz/<int:quiz_id>/edit/', view=faculty_views.faculty_edit_quiz, name='faculty_edit_quiz'),
+    path('faculty/quiz/<int:quiz_id>/delete/', view=faculty_views.faculty_delete_quiz, name='faculty_delete_quiz'),
+    path('faculty/quiz/<int:quiz_id>/toggle/<str:field>', view=faculty_views.faculty_toggle_quiz, name='faculty_toggle_quiz'),
+    path('faculty/quiz/<int:quiz_id>/responses/', view=faculty_views.faculty_view_responses, name='faculty_view_responses'),
+    path('faculty/questions/<int:quiz_id>/add/', view=faculty_views.faculty_add_questions, name='faculty_add_questions'),
+    path('faculty/manage/quiz/', view=faculty_views.faculty_manage_quiz,name='faculty_manage_quiz'),
 
 
     # Student routes
     path('student/home/', view=student_views.student_home, name='student_home'),
-    path('student_view_profile/', view=student_views.student_view_profile, name='student_view_profile'),
-    path("student_apply_leave/", student_views.student_apply_leave, name='student_apply_leave'),
+    path('student/profile/', view=student_views.student_view_profile, name='student_view_profile'),
+    path('student/leave/', student_views.student_apply_leave, name='student_apply_leave'),
 
-    path('student_view_quiz/', view=student_views.student_view_quiz, name='student_view_quiz'),
+    path('student/quiz/view/', view=student_views.student_view_quiz, name='student_view_quiz'),
 
-    path('attempt_quiz/<int:quiz_id>/', view=student_views.attempt_quiz, name='attempt_quiz'),
-    path('view_result/<int:quiz_id>/', view=student_views.view_result, name='view_result'),
-    path('submit_quiz/<int:quiz_id>/', view=student_views.submit_quiz, name='submit_quiz'),
+    path('student/quiz/<int:quiz_id>/attempt/', view=student_views.attempt_quiz, name='attempt_quiz'),
+    path('student/quiz/<int:quiz_id>/result/', view=student_views.view_result, name='view_result'),
+    path('student/quiz/<int:quiz_id>/submit/', view=student_views.submit_quiz, name='submit_quiz'),
 ]

@@ -6,15 +6,15 @@
 {% csrf_token %}
 <section class="content">
   <div class="container-fluid">
-    <div class="row">
+    <div class="row mb-4">
       <div class="col-md-12">
-        <div class="card card-dark">
+        <div class="card">
           <div class="card-header">
-            <h3 class="card-title">{{page_title}}</h3>
+            <h3 class="card-title">Pending Leave Requests</h3>
           </div>
-          <div class="table card-body">
+          <div class="table card-body" style="overflow-x: auto;">
             <table class="table table-bordered table-hover">
-              <tr>
+              <tr class="thead-dark">
                 <th>#</th>
                 <th>Student</th>
                 <th>Course</th>
@@ -24,37 +24,85 @@
                 <th>Submitted On</th>
                 <th>Action</th>
               </tr>
-              {% for leave in allLeave %}
-              <tr>
-                <td>{{forloop.counter}}</td>
-                <td>{{leave.student}}</td>
-                <td>{{leave.student.course}}</td>
-                <td>{{leave.student.batch.start_year.year}} - {{leave.student.batch.end_year.year}}</td>
-                <td>{{leave.message}}</td>
-                <td>{{leave.date}}</td>
-                <td>{{leave.created_at}}</td>
-                <td>
-                  {% if leave.status == 0 %}
-                  <button 
-                    class="btn btn-success action_button" 
-                    data-id="{{leave.id}}" 
-                    data-status="1">
-                    Approve
-                  </button>
-                  <button 
-                    class="btn btn-danger action_button" 
-                    data-id="{{leave.id}}" 
-                    data-status="-1">
-                    Reject
-                  </button>
-                  {% elif leave.status == -1 %}
-                  <span class="badge badge-danger">Rejected</span>
-                  {% else %}
-                  <span class="badge badge-success">Approved</span>
-                  {% endif %}
-                </td>
-              </tr>
-              {% endfor %}
+              {% if not pending_leaves %}
+                {% include 'common/no_content.html' with content='pending leave requests' %}
+              {% else %}
+                {% for leave in pending_leaves %}
+                <tr>
+                  <td>{{forloop.counter}}</td>
+                  <td>{{leave.student}}</td>
+                  <td>{{leave.student.course}}</td>
+                  <td>{{leave.student.batch}}</td>
+                  <td>{{leave.message}}</td>
+                  <td>{{leave.date}}</td>
+                  <td>{{leave.created_at}}</td>
+                  <td>
+                    <button 
+                      class="btn btn-success action_button btn-sm" 
+                      data-id="{{leave.id}}" 
+                      data-status="1">
+                      Approve
+                    </button>&#8195;
+                    <button 
+                      class="btn btn-danger action_button btn-sm" 
+                      data-id="{{leave.id}}" 
+                      data-status="-1">
+                      Reject
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% endif %}
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Past Leave Requests</h3>
+          </div>
+          <div class="table card-body" style="overflow-x: auto;">
+            <table class="table table-bordered table-hover">
+              <thead class="thead-dark">
+                <tr>
+                  <th>#</th>
+                  <th>Student</th>
+                  <th>Course</th>
+                  <th>Batch</th>
+                  <th>Message</th>
+                  <th>Leave Date</th>
+                  <th>Submitted On</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if not past_leaves %}
+                  {% include 'common/no_content.html' with content='past leave requests' %}
+                {% else %}
+                  {% for leave in past_leaves %}
+                  <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{leave.student}}</td>
+                    <td>{{leave.student.course}}</td>
+                    <td>{{leave.student.batch}}</td>
+                    <td>{{leave.message}}</td>
+                    <td>{{leave.date}}</td>
+                    <td>{{leave.created_at}}</td>
+                    <td>
+                      {% if leave.status == 1 %}
+                      <span class="badge badge-success">Approved</span>
+                      {% else %}
+                      <span class="badge badge-danger">Rejected</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                {% endif %}
+              </tbody>
             </table>
           </div>
         </div>

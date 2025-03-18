@@ -51,9 +51,13 @@ class CustomUser(AbstractUser):
 class Admin(models.Model):
     admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.admin.first_name + " " + self.admin.last_name
+
 
 class Course(models.Model):
     name = models.CharField(max_length=120)
+    admin = models.ForeignKey(Admin, null=True, blank=False, related_name="course", on_delete=models.DO_NOTHING)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -66,16 +70,6 @@ class Faculty(models.Model):
 
     def __str__(self):
         return self.admin.first_name + " " + self.admin.last_name
-    
-class Subject(models.Model):
-    name = models.CharField(max_length=120)
-    faculty = models.ManyToManyField(Faculty, related_name="subjects") # many to one
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.name
 
 
 class Batch(models.Model):
@@ -93,24 +87,38 @@ class Student(models.Model):
 
     def __str__(self):
         return self.admin.first_name + " " + self.admin.last_name
-    
 
-class LeaveReportStudent(models.Model):
+class Subject(models.Model):
+    name = models.CharField(max_length=120)
+    faculty = models.ManyToManyField(Faculty, related_name="subjects") # many to one
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
+class LeaveReport(models.Model):
+    date = models.CharField(max_length=20)
+    message = models.TextField()
+    status = models.SmallIntegerField(default=0)
+    requested_to = models.ForeignKey(Admin, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class LeaveReportStudent(LeaveReport):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    date = models.CharField(max_length=20)
-    message = models.TextField()
-    status = models.SmallIntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    requested_to = models.ForeignKey(Admin, on_delete=models.CASCADE, related_name='student_leave_requests')
 
 
-class LeaveReportFaculty(models.Model):
+class LeaveReportFaculty(LeaveReport):
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
-    date = models.CharField(max_length=20)
-    message = models.TextField()
-    status = models.SmallIntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    requested_to = models.ForeignKey(Admin, on_delete=models.CASCADE, related_name='faculty_leave_requests')
 
 class Quiz(models.Model):
     name = models.CharField(max_length=50)
@@ -121,6 +129,7 @@ class Quiz(models.Model):
     status = models.CharField(
         max_length=10, choices=choices.STATUS_CHOICES, default='active'
     )
+    is_result_declared = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
