@@ -1,0 +1,57 @@
+{% extends 'common/base.html' %}
+{% load static %}
+{% block page_title %}
+{{page_title}}
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">{{ page_title }}</h3>
+          </div>
+          <div class="card-body" style="overflow-x: auto;">
+            <table class="table table-bordered table-hover">
+              <thead class="thead-dark">
+                <tr>
+                  <th>#</th>
+                  <th>Subject</th>
+                  <th>Faculty</th>
+                  <th>Course</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if not subjects %}
+                 {% include 'common/no_content.html' with content='subjects' %}
+                {% else %}
+                  {% for subject in subjects %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ subject.name }}</td>
+                    <td>
+                      {% for faculty in subject.faculty.all %}
+                        {{ faculty.admin.first_name }} {{ faculty.admin.last_name }}
+                        {% if not forloop.last %}, {% endif %}
+                      {% empty %}
+                        <span class="text-xs text-muted">No Faculty Assigned</span>
+                      {% endfor %}
+                    </td>
+                    <td>{{ subject.course.name }}</td>
+                  </tr>
+                  {% endfor %}
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+          <div class="card-footer">
+            <a href="{% url 'login_page' %}" class='btn btn-sm btn-block btn-success'>Back</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}

@@ -1,5 +1,199 @@
-{% extends 'common/base.html' %} {% load static %} {% block page_title %}
-{{page_title}} {% endblock page_title %} {% block content %}
+{% extends 'common/base.html' %} 
+{% load static %} 
 
-<h2>this is faculty panel</h2>
+{% block page_title %}
+{{page_title}} 
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+    <div class="container-fluid">
+        <!-- Small boxes (Stat box) -->
+        <div class="row">
+            <div class="col-lg-3 col-6">
+                <!-- small box -->
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3>{{total_students}}</h3>
+
+                        <p>Total Students ({{course}})</p>
+                    </div>
+                    <div class="icon">
+                      <i class="nav-icon fas fa-user-graduate"></i>
+                    </div>
+                   <a href="{% url 'view_all_batches' %}" class="small-box-footer">View all Students<i class="fas fa-arrow-circle-right ml-1"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+            <!-- ./col -->
+            <div class="col-lg-3 col-6">
+                <!-- small box -->
+                <div class="small-box bg-danger">
+                    <div class="inner">
+                        <h3>{{total_subjects}}</h3>
+                        <p>Subjects Assigned</p>
+                    </div>
+                    <div class="icon">
+                      <i class="nav-icon fas fa-book"></i>
+                    </div>
+                    <a href="{% url 'view_all_subjects' %}" class="small-box-footer">View all subjects<i class="fas fa-arrow-circle-right ml-1"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+            <div class="col-lg-3 col-6">
+                <!-- small box -->
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3>3{{total_quizzes}}</h3>
+
+                        <p>Total Quiz Created</p>
+                    </div>
+                    <div class="icon">
+                      <i class="nav-icon fas fa-pencil-alt"></i>
+                    </div>
+                   <a href="{% url 'faculty_manage_quiz' %}" class="small-box-footer">View all quizzes <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+            <div class="col-lg-3 col-6">
+                <!-- small box -->
+                <div class="small-box bg-maroon">
+                    <div class="inner">
+                        <h3>{{total_leaves}}</h3>
+
+                        <p>Total Leave Applied</p>
+                    </div>
+                    <div class="icon">
+                      <i class="nav-icon fas fa-sign-out-alt"></i>
+                    </div>
+                   <a href="{% url 'faculty_apply_leave' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+        </div>
+        <!-- /.row -->
+        <!-- Main row -->
+        <div class="row">
+            <div class="col-md-6">
+                <!-- PIE CHART -->
+                <div class="card card-secondary">
+                  <div class="card-header">
+                    <h3 class="card-title">Quizzes created per subject</h3>
+    
+                    <div class="card-tools">
+                      <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
+                      </button>
+                      <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i></button>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="chart">
+                      <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                    </div>
+                  </div>
+                </div>
+                  <!-- /.card-body -->
+              </div>
+              <div class="col-md-6">
+                <div class="card card-secondary">
+              <div class="card-header">
+                <h3 class="card-title">Month-wise leave requests</h3>
+
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
+                  </button>
+                  <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i></button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="chart">
+                  <div style="overflox-x: scroll;">
+                    <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                  </div>
+                </div>
+              </div>
+              <!-- /.card-body -->
+            </div>
+                </div>
+            <!-- right col -->
+        </div>
+        <!-- /.row (main row) -->
+    </div><!-- /.container-fluid -->
+</section>
 {% endblock content %}
+
+{% block custom_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const barData = {
+      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+      datasets: [{
+        label: 'Leaves Applied',
+        data: {{month_wise_leaves}},
+        backgroundColor: '#007bff',
+      }]
+    };
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    new Chart(barCtx, {
+      type: 'bar',
+      data: barData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            yAxes: [{
+            beginAtZero: true,
+            grid: {
+              display: false
+            },
+            ticks: {
+              stepSize: 1,
+              precision: 0,
+              min: 0,
+              max: Math.max(...{{month_wise_leaves|safe}}) + 3,
+            }
+            }],
+            xAxes: [{
+            grid: {
+              display: false
+            }
+            }]
+        }
+      }
+    });
+
+
+    const pieData = {
+      labels: {{ subject_names|safe }},
+      datasets: [{
+        data: {{ quizzes_per_subject|safe }},
+        backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6610f2', '#fd7e14', '#20c997'],
+        hoverBackgroundColor: ['#0056b3', '#1e7e34', '#e0a800', '#c82333', '#138496', '#520caa', '#e36a00', '#1b9b73']
+      }]
+    };
+
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    new Chart(pieCtx, {
+      type: 'pie',
+      data: pieData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+          position: 'bottom'
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(tooltipItem) {
+                const label = pieData.labels[tooltipItem.dataIndex];
+                const value = pieData.datasets[0].data[tooltipItem.dataIndex];
+                return `${label}: ${value} quizzes`;
+              }
+            }
+          }
+        }
+      }
+    });
+});
+</script>
+{% endblock custom_js %}

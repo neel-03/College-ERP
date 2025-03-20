@@ -1,0 +1,61 @@
+{% extends 'common/base.html' %} 
+{% load static %} 
+{% block page_title %} 
+    Quiz - {{ quiz.name }} 
+{% endblock page_title %} 
+
+{% block content %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Student Overview for {{ quiz.name }}</h3>
+          </div>
+          <div class="card-body" style="overflow-x: auto">
+            <table class="table table-bordered table-hover">
+              <thead class="thead-dark">
+                <tr>
+                  <th>#</th>
+                  <th>Student</th>
+                  <th>Total Marks</th>
+                  <th>Obtained Marks</th>
+                  <th>Percentage</th>
+                  <th>Completed At</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if not responses %}
+                  {% include 'common/no_content.html' with content='responses' %}
+                {% else %}
+                  {% for result in responses %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ result.student.admin.first_name }} {{ result.student.admin.last_name }}</td>
+                    <td>{{ result.total_marks }}</td>
+                    <td>{{ result.obtained_marks }}</td>
+                    <td>
+                      {% widthratio result.obtained_marks result.total_marks 100 %}%
+                    </td>
+                    <td>{{ result.completed_at }}</td>
+                    <td>
+                      <a href="{% url 'view_student_result' quiz.id result.student.id %}" 
+                         class="btn btn-info btn-sm">View Details</a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+          <div class="card-footer">
+            <a href="{% url 'faculty_manage_quiz' %}" class="btn btn-success btn-block btn-sm">Back to Quizzes</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}

@@ -1,0 +1,54 @@
+{% extends 'common/base.html' %}
+{% load static %}
+{% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-body" style="overflow-x: auto;">
+            <table class="table table-bordered table-hover">
+              <thead class="thead-dark">
+                <tr>
+                  <th>#</th>
+                  <th>Full Name</th>
+                  <th>Email</th>
+                  <th>Gender</th>
+                  <th>Course</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if not students %}
+                  {% include 'common/no_content.html' with content='students' %}
+                {% else %}
+                  {% for student in students %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ student }}</td>
+                    {% with email=student.email %}
+                    <td>
+                      <a href="mailto:{{email}}" class="btn btn-default btn-sm">
+                        <i class="fa fa-envelope"></i>
+                        <span>{{email}}</span>
+                      </a>
+                    </td>
+                    {% endwith %}
+                    <td>{{ student.gender }}</td>
+                    <td>{{ student.student.course.name }}</td>
+                  </tr>
+                  {% endfor %}
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+          <div class="card-footer">
+            <a href="{% url 'view_all_batches' %}" class="btn btn-success btn-sm btn-block">Back to all batches</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}

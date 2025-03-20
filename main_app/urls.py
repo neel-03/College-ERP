@@ -9,6 +9,7 @@ urlpatterns = [
     path('login_user/', view=views.login_user, name='login_user'),
     path('logout_user/', view=views.logout_user, name='logout_user'),
 
+    path('quiz/<int:quiz_id>/<int:student_id>/response/', view=views.view_student_result, name='view_student_result'),
 
     path('check_email_availability/', hod_views.check_email_availability, name='check_email_availability'),
 
@@ -50,12 +51,15 @@ urlpatterns = [
 
     # Faculty routes
     path('faculty/home/', view=faculty_views.faculty_home, name='faculty_home'),
+    path('faculty/home/subjects/all/', view=faculty_views.view_all_subjects, name='view_all_subjects'),
+    path('faculty/home/batch/all/', view=faculty_views.view_all_batches, name='view_all_batches'),
+    path('faculty/home/batch/<int:batch_id>/', view=faculty_views.view_students_in_batch, name='view_students_in_batch'),
+    
     path('faculty/profile/', view=faculty_views.faculty_view_profile, name='faculty_view_profile'),
 
     path('faculty/leave/', faculty_views.faculty_apply_leave, name='faculty_apply_leave'),
 
     path('faculty/quiz/create/', view=faculty_views.faculty_create_quiz, name='faculty_create_quiz'),
-    path('faculty/quiz/<int:quiz_id>/edit/', view=faculty_views.faculty_edit_quiz, name='faculty_edit_quiz'),
     path('faculty/quiz/<int:quiz_id>/delete/', view=faculty_views.faculty_delete_quiz, name='faculty_delete_quiz'),
     path('faculty/quiz/<int:quiz_id>/toggle/<str:field>', view=faculty_views.faculty_toggle_quiz, name='faculty_toggle_quiz'),
     path('faculty/quiz/<int:quiz_id>/responses/', view=faculty_views.faculty_view_responses, name='faculty_view_responses'),
@@ -71,6 +75,5 @@ urlpatterns = [
     path('student/quiz/view/', view=student_views.student_view_quiz, name='student_view_quiz'),
 
     path('student/quiz/<int:quiz_id>/attempt/', view=student_views.attempt_quiz, name='attempt_quiz'),
-    path('student/quiz/<int:quiz_id>/result/', view=student_views.view_result, name='view_result'),
     path('student/quiz/<int:quiz_id>/submit/', view=student_views.submit_quiz, name='submit_quiz'),
 ]

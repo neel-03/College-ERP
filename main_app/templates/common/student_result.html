@@ -1,0 +1,75 @@
+{% extends 'common/base.html' %} 
+{% load static %} 
+{% block page_title %} 
+    Detailed Result - {{ student.admin }} 
+{% endblock page_title %} 
+
+{% block content %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header d-flex justify-content-start align-items-center">
+            <h3 class="card-title">
+              Detailed Result for <strong>{{ student.admin }}</strong> :
+            </h3>
+            <span>&#160;Marks - (</span>
+            <div class="badge badge-info p-2" style="font-size: 16px;">
+              {{ result.obtained_marks }} / {{ result.total_marks }}
+            </div>
+            <span>)</span>
+          </div>
+          <div class="card-body" style="overflow-x: auto">
+            <table class="table table-bordered table-hover">
+              <thead class="thead-dark">
+                <tr>
+                  <th>#</th>
+                  <th>Question</th>
+                  <th>Selected Answer</th>
+                  <th>Correct Answer</th>
+                  <th>Marks Awarded</th>
+                  <th>Response Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for response in responses %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ response.question.text }}</td>
+                  <td>{{ response.selected_answer }}</td>
+                  <td>{{ response.question.correct_answer }}</td>
+                  <td>
+                    {% if response.is_correct %}
+                      {{ response.question.marks }}
+                    {% else %}
+                      0
+                    {% endif %}
+                  </td>
+                  <td>{{ response.responded_at }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="card-footer text-right">
+            {% if request.user.user_type == '2' %}
+              <a 
+              class="btn btn-success btn-block btn-sm" 
+              href="{% url 'faculty_view_responses' quiz.id %}">
+                Back to responses
+              </a>
+            {% else %}
+              <a 
+                class="btn btn-success btn-block btn-sm" 
+                href="{% url 'student_view_quiz' %}">
+                  Back
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}

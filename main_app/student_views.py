@@ -77,8 +77,8 @@ def student_apply_leave(request):
 def student_view_quiz(request):
     student = get_object_or_404(Student, admin=request.user)
     quizzes = Quiz.objects.filter(
-        batch=student.batch,
-        
+        batch=student.batch, 
+        subject__course=student.course
     ).annotate(
         attempted = models.Exists(
             Response.objects.filter(student=student, quiz=models.OuterRef('id'))
@@ -129,7 +129,7 @@ def attempt_quiz(request, quiz_id):
 
 def submit_quiz(request, quiz_id):
     student = get_object_or_404(Student, admin=request.user)
-    quiz = get_object_or_404(Quiz, id=quiz_id)
+    quiz = get_object_or_404(Quiz, id=quiz_id, status='active')
     questions = Question.objects.filter(quiz=quiz)
 
     if request.method == 'POST':
@@ -160,8 +160,3 @@ def submit_quiz(request, quiz_id):
         except:
             return HttpResponse("False")    
     return redirect('student_view_quiz')
-
-
-
-def view_result(request, quiz_id):
-    pass

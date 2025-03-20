@@ -1,8 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect, reverse
+
+from main_app.models import Quiz, QuizResult, Response, Student
 
 from .email_auth import backend
 
@@ -41,3 +43,20 @@ def login_page(request):
             return redirect(reverse('faculty_home'))
         case _:
             return redirect(reverse('student_home'))
+
+
+def view_student_result(request, quiz_id, student_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id, is_result_declared=True)
+    student = get_object_or_404(Student, id=student_id)
+
+    responses = Response.objects.filter(quiz=quiz, student=student).select_related('question')
+    result = get_object_or_404(QuizResult, quiz=quiz, student=student)
+
+    context = {
+        'quiz': quiz,
+        'student': student,
+        'responses': responses,
+        'result': result,
+    }
+
+    return render(request, 'common/student_result.html', context)

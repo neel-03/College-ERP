@@ -1,0 +1,54 @@
+{% extends 'common/base.html' %}
+{% load static %} 
+{% block page_title %}
+{{page_title}}
+{% endblock page_title %} 
+
+{% block content %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">All batches</h3>
+          </div>
+          <div class="card-body" style="overflow-x: auto;">
+            <table class="table table-bordered table-hover">
+              <thead class="thead-dark">
+                <tr>
+                  <th>#</th>
+                  <th>Start</th>
+                  <th>End</th>
+                  <th>No. of Students</th>
+                  <th>View all students</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if not batch_data %}
+                  {% include 'common/no_content.html' with content='batches' %}
+                {% else %}
+                  {% for batch in batch_data %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{batch.batch.start_year.year}}</td>
+                    <td>{{batch.batch.end_year.year}}</td>
+                    <td>{{batch.student_count}}</td>
+                    <td>
+                      <a href="{% url 'view_students_in_batch' batch.batch.id %}" class="btn btn-default btn-sm">View all students for batch {{batch.batch}}</a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+          <div class='card-footer'>
+            <a href="{% url 'login_page' %}" class='btn btn-sm btn-block btn-success'>Back</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}

@@ -59,7 +59,7 @@
                     </td>
                     <td>
                       {% if quiz.is_result_declared and quiz.attempted %}
-                        <a href="{% url 'view_result' quiz.id %}" class="btn btn-warning btn-sm">View Result</a>
+                        <a href="{% url 'view_student_result' quiz.id request.user.student.id %}" class="btn btn-warning btn-sm">View Result</a>
                       {% else %}
                         <span class="text-muted text-xs">Not available</span>
                       {% endif %}
