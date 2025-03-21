@@ -1,8 +1,6 @@
 from datetime import datetime
 import json
 
-from django.db.models.functions import ExtractMonth
-from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
@@ -38,6 +36,7 @@ def faculty_home(request):
         'course': course,
         'total_students': total_students,
         'total_subjects': all_subjects.count(),
+        'total_quizzes': sum(quizzes_per_subject),
         'total_leaves': all_leaves.count(),
 
         'month_wise_leaves': month_wise_leaves,

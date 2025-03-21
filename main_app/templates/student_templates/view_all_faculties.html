@@ -1,0 +1,60 @@
+{% extends 'common/base.html' %}
+{% load static %}
+{% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-body" style="overflow-x: auto;">
+            <table class="table table-bordered table-hover">
+              <thead class="thead-dark">
+                <tr>
+                  <th>#</th>
+                  <th>Full Name</th>
+                  <th>Email</th>
+                  <th>Subjects</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if not faculty_data %}
+                  {% include 'common/no_content.html' with content='faculties' %}
+                {% else %}
+                  {% for faculty in faculty_data %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ faculty.faculty.admin }}</td>
+                    {% with email=faculty.faculty.admin.email %}
+                    <td>
+                      <a href="mailto:{{email}}" class="btn btn-default btn-sm">
+                        <i class="fa fa-envelope"></i>
+                        <span>{{email}}</span>
+                      </a>
+                    </td>
+                    {% endwith %}
+                    <td>
+                      {% for subject in faculty.subjects.all %}
+                        <span>{{ subject }}</span>
+                        {% if not forloop.last %}
+                          <span>, </span>
+                        {% endif %}
+                        {% empty %}
+                            <span class="text-xs text-muted">No Subjects</span>
+                      {% endfor %}
+                  </tr>
+                  {% endfor %}
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+          <div class='card-footer'>
+            <a href="{% url 'login_page' %}" class="btn btn-success btn-block btn-sm">Back</a>
+          </dev>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}

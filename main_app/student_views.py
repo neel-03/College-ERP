@@ -9,7 +9,59 @@ from .models import *
 
 
 def student_home(request):
-    return render(request, 'student_templates/home_content.html')
+    student = get_object_or_404(Student, admin=request.user)
+    
+    all_faculties_count = Faculty.objects.filter(course=student.course).count()
+    
+    all_student_quizzes = Quiz.objects.filter(
+        batch=student.batch, 
+        subject__course=student.course
+    )
+    attempted_quiz_ids = QuizResult.objects.filter(
+        student=student
+    ).values_list('quiz', flat=True)
+    
+    # Annotate quiz counts
+    missed_quizzes_count = all_student_quizzes.filter(
+        status='closed'
+    ).exclude(
+        id__in=attempted_quiz_ids
+    ).count()
+    
+    pending_quizzes_count = all_student_quizzes.filter(
+        status='active'
+    ).exclude(
+        id__in=attempted_quiz_ids
+    ).count()
+    
+    # Get leave data
+    current_year = datetime.now().year
+    current_year_leaves = LeaveReportStudent.objects.filter(
+        student=student,
+        created_at__year=current_year
+    )
+    
+    # Calculate month-wise leaves
+    month_wise_leaves = [0] * 12
+    for leave in current_year_leaves:
+        month_wise_leaves[leave.created_at.month - 1] += 1
+    
+    total_leaves = LeaveReportStudent.objects.filter(student=student).count()
+    
+    context = {
+        'page_title': f'Student Panel - {student.admin.first_name} {student.admin.last_name} ({student.course})',
+        'student_course': student.course,
+        'student_batch': student.batch,
+        'total_faculties': all_faculties_count,
+        'missed_quizzes': missed_quizzes_count,
+        'pending_quizzes': pending_quizzes_count,
+        'attempted_quizzes': QuizResult.objects.filter(student=student).count(),
+        'total_quizzes': all_student_quizzes.count(),
+        'total_leaves': total_leaves,
+        'month_wise_leaves': month_wise_leaves,
+    }
+    
+    return render(request, 'student_templates/home_content.html', context=context)
 
 
 def student_view_profile(request):
@@ -128,7 +180,12 @@ def attempt_quiz(request, quiz_id):
 
 
 def submit_quiz(request, quiz_id):
+
     student = get_object_or_404(Student, admin=request.user)
+    if QuizResult.objects.filter(student=student, quiz_id=quiz_id).exists():
+        messages.info(request, "You have already attempted this quiz.")
+        return redirect('student_view_quiz')
+
     quiz = get_object_or_404(Quiz, id=quiz_id, status='active')
     questions = Question.objects.filter(quiz=quiz)
 
@@ -160,3 +217,23 @@ def submit_quiz(request, quiz_id):
         except:
             return HttpResponse("False")    
     return redirect('student_view_quiz')
+
+
+def view_all_faculties(request):
+    student = get_object_or_404(Student, admin=request.user)
+    faculties = Faculty.objects.filter(course=student.course).prefetch_related('subjects')
+
+    faculty_data = []
+    for faculty in faculties:
+        faculty_subjects = faculty.subjects.filter(course=student.course)
+        faculty_data.append({
+            'faculty': faculty,
+            'subjects': faculty_subjects
+        })
+
+    context = {
+        'page_title': f'View All Faculties: ({student.course})',
+        'faculty_data': faculty_data,
+    }
+
+    return render(request, 'student_templates/view_all_faculties.html', context=context)

@@ -24,7 +24,7 @@ urlpatterns = [
     path('hod/course/<int:course_id>/delete/', view=hod_views.delete_course, name='delete_course'),
 
     path('hod/batch/add/', view=hod_views.add_batch, name='add_batch'),
-    path('hos/batch/manage/', view=hod_views.manage_batch, name='manage_batch'),
+    path('hod/batch/manage/', view=hod_views.manage_batch, name='manage_batch'),
     path('hod/batch/<int:batch_id>/edit/', view=hod_views.edit_batch, name='edit_batch'),
     path('hod/batch/<int:batch_id>/delete/', view=hod_views.delete_batch, name='delete_batch'),
 
@@ -69,6 +69,7 @@ urlpatterns = [
 
     # Student routes
     path('student/home/', view=student_views.student_home, name='student_home'),
+    path('student/home/faculties/all/', view=student_views.view_all_faculties, name='view_all_faculties'),
     path('student/profile/', view=student_views.student_view_profile, name='student_view_profile'),
     path('student/leave/', student_views.student_apply_leave, name='student_apply_leave'),
 
