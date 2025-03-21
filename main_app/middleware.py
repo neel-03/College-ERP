@@ -10,22 +10,21 @@ class LoginCheckMiddleware(MiddlewareMixin):
         if curr_user.is_authenticated:
             match curr_user.user_type:
                 case '1': # admin/HOD
-                    # hods are not allowed to access student views
-                    if requested_module == 'main_app.student_views': 
+                    # hods are not allowed to access student and faculty views
+                    if requested_module != 'main_app.hod_views': 
                         return redirect(reverse('hod_home'))
                 
                 case '2': # faculty
                     # faculties are not allowed to access student and admin views
-                    if requested_module == 'main_app.student_views' or requested_module == 'main_app.hod_views':
+                    if requested_module != 'main_app.faculty_views':
                         return redirect(reverse('faculty_home'))
                     
                 case '3': # students
                     # students are not allowed to access faculty and admin views
-                    if requested_module == 'main_app.hod_views' or requested_module == 'main_app.staff_views':
+                    if requested_module != 'main_app.student_views':
                         return redirect(reverse('student_home'))
                     
                 case _:
-                    print('going')
                     return redirect(reverse('login_page'))
 
         else: # user not authenticated
