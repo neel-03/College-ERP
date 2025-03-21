@@ -1,5 +1,225 @@
-{% extends 'common/base.html' %} {% load static %} {% block page_title %}
-{{page_title}} {% endblock page_title %} {% block content %}
+{% extends 'common/base.html' %} 
+{% load static %} 
 
-<h2>this is hod panel</h2>
+{% block page_title %}
+{{page_title}} 
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+    <div class="container-fluid">
+        <!-- Small boxes (Stat box) -->
+        <div class="row">
+            <div class="col-lg-3 col-6">
+                <!-- small box -->
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3>{{total_faculties}}</h3>
+
+                        <p>Total Faculties</p>
+                    </div>
+                    <div class="icon">
+                      <i class="nav-icon fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <a href="{% url 'manage_faculty' %}" class="small-box-footer">View all faculties<i class="fas fa-arrow-circle-right ml-1"></i></a>                </div>
+            </div>
+            <!-- ./col -->
+            <!-- ./col -->
+            <div class="col-lg-3 col-6">
+                <!-- small box -->
+                <div class="small-box bg-danger">
+                    <div class="inner">
+                        <h3>{{total_students}}</h3>
+                        <p>Total Students</p>
+                    </div>
+                    <div class="icon">
+                      <i class="nav-icon fas fa-user-graduate"></i>
+                    </div>
+                    <a href="{% url 'hod_view_all_batches' %}" class="small-box-footer">View all Students<i class="fas fa-arrow-circle-right ml-1"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+            <div class="col-lg-3 col-6">
+                <!-- small box -->
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3>{{total_subjects}}</h3>
+
+                        <p>Total Subjects</p>
+                    </div>
+                    <div class="icon">
+                      <i class="nav-icon fas fa-book"></i>
+                    </div>
+                   <a href="{% url 'manage_subject' %}" class="small-box-footer">View all subjects <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+            <div class="col-lg-3 col-6">
+                <!-- small box -->
+                <div class="small-box bg-maroon">
+                    <div class="inner">
+                        <h3>{{total_pending_leaves}}</h3>
+
+                        <p>Total pending leaves</p>
+                    </div>
+                    <div class="icon">
+                      <i class="nav-icon fas fa-sign-out-alt"></i>
+                    </div>
+                    <div class="small-box-footer d-flex justify-content-around align-items-center">
+                      <a href="{% url 'view_faculty_leave' %}" style="color: white;">Faculty <i class="fas fa-arrow-circle-right"></i></a>
+                      <a href="{% url 'view_student_leave' %}" style="color: white;">Student <i class="fas fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.row -->
+        <!-- Main row -->
+        <div class="row">
+            <div class="col-md-6">
+                <!-- PIE CHART -->
+                <div class="card card-secondary">
+                  <div class="card-header">
+                    <h3 class="card-title">Faculty workload</h3>
+    
+                    <div class="card-tools">
+                      <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
+                      </button>
+                      <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i></button>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="chart">
+                      <canvas id="polarChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                    </div>
+                  </div>
+                </div>
+                  <!-- /.card-body -->
+              </div>
+              <div class="col-md-6">
+                <div class="card card-secondary">
+              <div class="card-header">
+                <h3 class="card-title">Leave Requests</h3>
+
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
+                  </button>
+                  <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i></button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="chart">
+                  <div style="overflox-x: scroll;">
+                    <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                  </div>
+                </div>
+              </div>
+              <!-- /.card-body -->
+            </div>
+                </div>
+            <!-- right col -->
+        </div>
+        <!-- /.row (main row) -->
+    </div><!-- /.container-fluid -->
+</section>
 {% endblock content %}
+
+{% block custom_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const ctx = document.getElementById('polarChart').getContext('2d');
+
+    const facultyLabels = [
+        {% for faculty in faculty_workload %}
+        "{{ faculty.admin.first_name }} {{ faculty.admin.last_name }}",
+        {% endfor %}
+    ];
+
+    const facultyData = [
+        {% for faculty in faculty_workload %}
+        {{ faculty.subject_count }},
+        {% endfor %}
+    ];
+
+    new Chart(ctx, {
+        type: 'polarArea',
+        data: {
+            labels: facultyLabels,
+            datasets: [{
+                label: 'Assigned Subjects',
+                data: facultyData,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)',
+                    'rgba(99, 255, 132, 0.7)',
+                    'rgba(162, 54, 235, 0.7)',
+                    'rgba(206, 255, 86, 0.7)',
+                    'rgba(192, 75, 192, 0.7)'
+                ],
+                borderColor: '#fff',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.raw} subjects`;
+                        }
+                    }
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            scales: {
+                r: {
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+
+    const pieData = {
+        labels: ['Pending', 'Approved', 'Rejected'],
+        datasets: [{
+            data: [
+                {{ leave_data.pending }},
+                {{ leave_data.approved }},
+                {{ leave_data.rejected }}
+            ],
+            backgroundColor: ['#ffc107', '#28a745', '#dc3545'],
+            hoverOffset: 4
+        }]
+    };
+
+    new Chart(pieCtx, {
+        type: 'pie',
+        data: pieData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                title: {
+                    display: true,
+                    text: 'Leave Distribution'
+                }
+            }
+        }
+    });
+
+    }
+  );
+</script>
+{% endblock custom_js %}

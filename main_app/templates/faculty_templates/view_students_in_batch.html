@@ -17,6 +17,9 @@
                   <th>Email</th>
                   <th>Gender</th>
                   <th>Course</th>
+                  {% if user.user_type == '1' %}
+                    <th>Actions</th>
+                  {% endif %}
                 </tr>
               </thead>
               <tbody>
@@ -37,6 +40,20 @@
                     {% endwith %}
                     <td>{{ student.gender }}</td>
                     <td>{{ student.student.course.name }}</td>
+                    {% if user.user_type == '1' %}
+                      <td>
+                        <a
+                        href="{% url 'edit_student' student.student.id %}"
+                        class="btn btn-info btn-sm"
+                        >Edit</a>
+                      &#8195;
+                      <a
+                        href="{% url 'delete_student' student.student.id %}"
+                        class="btn btn-danger btn-sm"
+                        onclick="return confirm('Are you sure about this?')"
+                        >Delete</a>
+                      </td>
+                    {% endif %}
                   </tr>
                   {% endfor %}
                 {% endif %}
@@ -44,7 +61,14 @@
             </table>
           </div>
           <div class="card-footer">
-            <a href="{% url 'view_all_batches' %}" class="btn btn-success btn-sm btn-block">Back to all batches</a>
+            <a 
+              {% if user.user_type == '1' %}
+              href="{% url 'hod_view_all_batches' %}" 
+              {% else %}
+              href="{% url 'view_all_batches' %}" 
+              {% endif %}
+              class="btn btn-success btn-sm btn-block"
+            >Back to all batches</a>
           </div>
         </div>
       </div>

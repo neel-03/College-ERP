@@ -35,7 +35,14 @@
                     <td>{{batch.batch.end_year.year}}</td>
                     <td>{{batch.student_count}}</td>
                     <td>
-                      <a href="{% url 'view_students_in_batch' batch.batch.id %}" class="btn btn-default btn-sm">View all students for batch {{batch.batch}}</a>
+                      <a 
+                      {% if user.user_type == '1' %}
+                      href="{% url 'hod_view_students_in_batch' batch.batch.id %}" 
+                      {% else %}
+                      href="{% url 'view_students_in_batch' batch.batch.id %}" 
+                      {% endif %}
+                      class="btn btn-default btn-sm"
+                      >View all students for batch {{batch.batch}}</a>
                     </td>
                   </tr>
                   {% endfor %}

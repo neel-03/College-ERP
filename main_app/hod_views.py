@@ -9,8 +9,44 @@ from .models import *
 from .forms import *
 
 
+from django.db.models import Count, Q
+from django.shortcuts import render, get_object_or_404
+
 def hod_home(request):
-    return render(request, 'hod_templates/home_content.html')
+    hod = get_object_or_404(Admin, admin=request.user)
+    course = get_object_or_404(Course, admin=hod)
+
+    total_faculties = Faculty.objects.filter(course=course).count()
+    total_students = Student.objects.filter(course=course).count()
+    total_subjects = Subject.objects.filter(course=course).count()
+
+    faculty_workload = Faculty.objects.filter(
+            course=course
+        ).annotate(
+            subject_count=Count('subjects', distinct=True)
+        )
+
+    leave_data = {
+        'pending': LeaveReportStudent.objects.filter(status=0, student__course=course).count() +
+                   LeaveReportFaculty.objects.filter(status=0, faculty__course=course).count(),
+        'approved': LeaveReportStudent.objects.filter(status=1, student__course=course).count() +
+                    LeaveReportFaculty.objects.filter(status=1, faculty__course=course).count(),
+        'rejected': LeaveReportStudent.objects.filter(status=-1, student__course=course).count() +
+                    LeaveReportFaculty.objects.filter(status=-1, faculty__course=course).count(),
+    }
+
+    context = {
+        'page_title': f'HoD Panel - {hod.admin.first_name} {hod.admin.last_name} ({course})',
+        'total_faculties': total_faculties,
+        'total_students': total_students,
+        'total_subjects': total_subjects,
+        'total_pending_leaves': leave_data['pending'],
+        'faculty_workload': faculty_workload,
+        'leave_data': leave_data,
+    }
+
+    return render(request, 'hod_templates/home_content.html', context)
+
 
 
 def hod_view_profile(request):
@@ -576,3 +612,42 @@ def view_student_leave(request):
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
+def hod_view_all_batches(request):
+    hod = get_object_or_404(Admin, admin=request.user)
+    course = get_object_or_404(Course, admin=hod)
+    batches = Batch.objects.filter(student__course=course).distinct().order_by('start_year')
+
+    batch_data = []
+    for batch in batches:
+        student_count = Student.objects.filter(batch=batch, course=course).count()
+        batch_data.append({
+            'batch': batch,
+            'student_count': student_count,
+        })
+
+    context = {
+        'batch_data': batch_data,
+        'page_title': f'All Students in {course}'
+    }
+    return render(request, 'faculty_templates/view_all_batches.html', context)
+
+
+def hod_view_students_in_batch(request, batch_id):
+    batch = get_object_or_404(Batch, id=batch_id)
+    hod = get_object_or_404(Admin, admin=request.user)
+    course = get_object_or_404(Course, admin=hod)
+
+    students = CustomUser.objects.filter(
+        student__batch=batch, 
+        student__course=course
+    ).order_by('email')
+
+    context = {
+        'batch': batch,
+        'students': students,
+        'page_title': f'Students in batch {batch}'
+    }
+
+    return render(request, 'faculty_templates/view_students_in_batch.html', context)

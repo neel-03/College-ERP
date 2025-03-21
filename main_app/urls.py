@@ -17,6 +17,8 @@ urlpatterns = [
     # HOD routes
     path('hod/home/', view=hod_views.hod_home, name='hod_home'),
     path('hod/profile/', view=hod_views.hod_view_profile, name='hod_view_profile'),
+    path('hod/home/batch/all/', view=hod_views.hod_view_all_batches, name='hod_view_all_batches'),
+    path('hod/home/batch/<int:batch_id>/', view=hod_views.hod_view_students_in_batch, name='hod_view_students_in_batch'),
 
     path('hod/course/add/', view=hod_views.add_course, name='add_course'),
     path('hod/course/manage/', view=hod_views.manage_course, name='manage_course'),
