@@ -7,21 +7,25 @@ class LoginCheckMiddleware(MiddlewareMixin):
         requested_module = view_func.__module__
         curr_user = request.user
         
+        hod_restricted_views = ['main_app.faculty_views', 'main_app.student_views']
+        faculty_restricted_views = ['main_app.hod_views', 'main_app.student_views']
+        student_resricted_views = ['main_app.faculty_views', 'main_app.hod_views']
+
         if curr_user.is_authenticated:
             match curr_user.user_type:
                 case '1': # admin/HOD
                     # hods are not allowed to access student and faculty views
-                    if requested_module != 'main_app.hod_views': 
+                    if requested_module in hod_restricted_views: 
                         return redirect(reverse('hod_home'))
                 
                 case '2': # faculty
                     # faculties are not allowed to access student and admin views
-                    if requested_module != 'main_app.faculty_views':
+                    if requested_module in faculty_restricted_views:
                         return redirect(reverse('faculty_home'))
                     
                 case '3': # students
                     # students are not allowed to access faculty and admin views
-                    if requested_module != 'main_app.student_views':
+                    if requested_module in student_resricted_views:
                         return redirect(reverse('student_home'))
                     
                 case _:
